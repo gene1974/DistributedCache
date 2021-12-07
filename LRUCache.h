@@ -11,150 +11,20 @@ struct ListNode
 	ListNode* Pre;
 	ListNode* Next;
 
-	ListNode(int key, int value)//³õÊ¼»¯
-	{
-		l_key = key;
-		l_value = value;
-		Pre = NULL;
-		Next = NULL;
-	}
+	ListNode(int key, int value);
 };
 
 class LRU_Cache
 {
 public:
-	LRU_Cache(int size)//¹¹Ôìº¯Êý
-	{
-		m_capacity = size;
-		pHead == NULL;
-		pTail == NULL;
-	}
-
-	~LRU_Cache()//Îö¹¹º¯Êý
-	{
-		map<int, ListNode*>::iterator it = mp.begin();
-		for (; it != mp.end();)
-		{
-			delete it->second;
-			it->second = NULL;
-			mp.erase(it++);  
-		}
-		delete pHead;
-		pHead == NULL;
-		delete pTail;
-		pTail == NULL;
-
-	}
-	//ÒÆ³ý½Úµã£¬µ«²»É¾³ý½Úµã
-	void Remove(ListNode* pNode)
-	{
-		// Èç¹ûÊÇÍ·½Úµã
-		if (pNode->Pre == NULL)
-		{
-			pHead = pNode->Next;
-			pHead->Pre = NULL;
-		}
-
-		// Èç¹ûÊÇÎ²½Úµã
-		if (pNode->Next == NULL)
-		{
-			pTail = pNode->Pre;
-			pTail->Next = NULL;
-		}
-
-		else
-		{
-			pNode->Pre->Next = pNode->Next;
-			pNode->Next->Pre = pNode->Pre;
-		}
-
-	}
-	//  ½«×î½üÓÃ¹ýµÄÊý¾ÝÒª·ÅÔÚ¶ÓÍ·¡£
-	void SetHead(ListNode* pNode)
-	{
-		pNode->Next = pHead;
-		pNode->Pre = NULL;
-		if (pHead == NULL)
-		{
-			pHead = pNode;
-		}
-		else
-		{
-			pHead->Pre = pNode;
-			pHead = pNode;
-
-		}
-		if (pTail == NULL)
-		{
-			pTail = pHead;
-		}
-	}
-	//²åÈëÊý¾Ý
-	void Insert(int key, int value)
-	{
-		map<int, ListNode*>::iterator it = mp.find(key);//Èç¹ûÐÂkeyµÈÓÚ¾Ékey£¬Ôò¸üÐÂvalue
-		if (it != mp.end())
-		{
-			ListNode* Node = it->second;
-			Node->l_value = value;
-			Remove(Node);
-			SetHead(Node);
-		}
-		else
-		{
-			ListNode* NewNode = new ListNode(key, value);
-			if (mp.size() >= m_capacity)
-			{
-				cout << endl << "¾¯¸æ£ºÒÑ¾­³¬³ö×î´óÈÝÁ¿:" << m_capacity << "¸öÊý¾Ý" << endl;
-				int x = pTail->l_key;
-				map<int, ListNode*>::iterator it = mp.find(x);
-				Remove(pTail); //ÒÆ³ý±íÎ²Ö¸ÕëÄÚ´æ
-				int y = it->second->l_value;
-				delete it->second;//É¾³ývalue
-				cout << endl << "ÎªÄúÒÆ³ýkeyÎª" << x << ",valueÎª" << y << "µÄ½Úµã" << endl;
-				mp.erase(it);
-			}
-			SetHead(NewNode);//·Åµ½Í·²¿
-			mp[key] = NewNode;
-		}
-	}
-
-	int Get(int key)
-	{
-		map<int, ListNode*>::iterator it = mp.find(key);
-		if (it != mp.end())
-		{
-			ListNode* Node = it->second;
-			Remove(Node);
-			SetHead(Node);
-			return Node->l_value;
-		}
-		else
-		{
-			return -1;     //ÓÐ´ýÉÌÌÖ
-		}
-	}
-
-	int GetSize()
-	{
-		return mp.size();
-	}
-
-	void show() {
-		int i = 0;
-		int n = mp.size();
-		if (n == 0) cout << "empty task" << endl;
-		else {
-			map<int, ListNode*>::iterator it = mp.begin();
-			cout << "µ±Ç°Ò»¹²ÓÐ" << n << "¸öÊý¾Ý: " << endl;
-			for (; it != mp.end(); ++it) 
-			{
-				cout << "keyÖµÎª:" << it->first << ",valueÖµÎª: " << it->second->l_value << endl;
-				i++;
-			}
-		}
-	}
-
+	LRU_Cache(int size);
+	~LRU_Cache();
+	void Remove(ListNode* pNode);	// ç§»é™¤èŠ‚ç‚¹ï¼Œä½†ä¸åˆ é™¤èŠ‚ç‚¹
+	void SetHead(ListNode* pNode);	// å°†æœ€è¿‘ç”¨è¿‡çš„æ•°æ®è¦æ”¾åœ¨é˜Ÿå¤´ã€‚
+	void Insert(int key, int value);// æ’å…¥æ•°æ®
+	int Get(int key);
+	int GetSize();
+	void show();
 private:
 	int m_capacity;    
 	ListNode* pHead;   
