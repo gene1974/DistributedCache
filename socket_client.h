@@ -6,12 +6,11 @@
 #include<netinet/in.h>
 #include<arpa/inet.h>
 #include<unistd.h>
-const int MAXSIZE = 4096;
 
 class SocketClient{
 public:
     bool connect_server(const char* ip, int port);
-    bool sendline(const char* sendline);
+    bool send_line(const char* sendline);
     bool close_connect();
     bool connect_and_send(const char* ip, int port, const char* sendline);
     bool send_stdin(const char* ip, int port);

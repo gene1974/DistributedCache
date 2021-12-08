@@ -46,9 +46,9 @@ bool SocketServer::listen_to_port(){
     return 0;
 }
 
-int main(int argc, char** argv){
-    char recvline[MAXSIZE];
-    SocketServer socker_server("127.0.0.1", 6666);
-    socker_server.listen_to_port();
-    return 0;
-}
+// int main(int argc, char** argv){
+//     char recvline[MAXSIZE];
+//     SocketServer socker_server("127.0.0.1", 6666);
+//     socker_server.listen_to_port();
+//     return 0;
+// }

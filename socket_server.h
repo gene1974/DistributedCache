@@ -18,5 +18,5 @@ public:
 private:
     int  listenfd, connfd;
     struct sockaddr_in  servaddr;
-    char  buff[4096];
+    char  buff[MAXSIZE];
 };

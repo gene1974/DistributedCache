@@ -36,7 +36,7 @@ bool SocketClient::connect_server(const char* ip, int port){
     return _connect(ip, port);
 }
 
-bool SocketClient::sendline(const char* sendline){
+bool SocketClient::send_line(const char* sendline){
     return _send(sendline);
 }
 
@@ -55,8 +55,8 @@ bool SocketClient::connect_and_send(const char* ip, int port, const char* sendli
 }
 
 bool SocketClient::send_stdin(const char* ip, int port){
-    char sendline[MAXSIZE];
-    while (fgets(sendline, MAXSIZE, stdin)){
+    char sendline[4096];
+    while (fgets(sendline, 4096, stdin)){
         connect_and_send(ip, port, sendline);
     }
     return true;

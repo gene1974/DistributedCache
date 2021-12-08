@@ -1,5 +1,17 @@
 # DistributedCache
 
+### 系统框架
+
+搭了一下系统框架，按照我的想法大概写了一下需要的线程和函数，具体内容后续完善。
+
+```Shell
+g++ master.cpp socket_server.cpp socket_client.cpp -lpthread -o master && ./master ip port1 port2 port3
+
+g++ client.cpp socket_server.cpp socket_client.cpp -lpthread -o client && ./client ip1 port1 ip2 port2
+
+g++ cache.cpp socket_server.cpp socket_client.cpp -lpthread -o cache && ./cache ip port1 port2
+```
+
 ### Socket 通信
 
 接口示例：
@@ -32,10 +44,10 @@ Demo运行方法：
 
 Terminal 1：
 ```Shell
-g++ socket_server.cpp -o server && ./server
+g++ socket_server.cpp -o socket_server && ./socket_server
 ```
 
 Terminal 2：
 ```Shell
-g++ socket_client.cpp -o client && ./client
+g++ socket_client.cpp -o socket_client && ./socket_client
 ```

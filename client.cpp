@@ -1,27 +1,27 @@
 #include <iostream>
 #include <map> 
-#include <string>  
 #include <random>
+#include <string>  
+#include <thread>
 
-using namespace std;
 using std::string;
 using std::random_device;
 using std::default_random_engine;
 
-string strRand(int length = 8) {			// length: ²úÉú×Ö·û´®µÄ³¤¶È
-    char tmp;							// tmp: Ôİ´æÒ»¸öËæ»úÊı
-    string buffer;						// buffer: ±£´æ·µ»ØÖµ
+string strRand(int length = 8) {			// length: äº§ç”Ÿå­—ç¬¦ä¸²çš„é•¿åº¦
+    char tmp;							// tmp: æš‚å­˜ä¸€ä¸ªéšæœºæ•°
+    string buffer;						// buffer: ä¿å­˜è¿”å›å€¼
 
    
-    random_device rd;					// ²úÉúÒ»¸ö std::random_device ¶ÔÏó rd
-    default_random_engine random(rd());	// ÓÃ rd ³õÊ¼»¯Ò»¸öËæ»úÊı·¢ÉúÆ÷ random
+    random_device rd;					// äº§ç”Ÿä¸€ä¸ª std::random_device å¯¹è±¡ rd
+    default_random_engine random(rd());	// ç”¨ rd åˆå§‹åŒ–ä¸€ä¸ªéšæœºæ•°å‘ç”Ÿå™¨ random
 
     for (int i = 0; i < length; i++) {
-        tmp = random() % 36;	// Ëæ»úÒ»¸öĞ¡ÓÚ 36 µÄÕûÊı£¬0-9¡¢A-Z ¹² 36 ÖÖ×Ö·û
-        if (tmp < 10) {			// Èç¹ûËæ»úÊıĞ¡ÓÚ 10£¬±ä»»³ÉÒ»¸ö°¢À­²®Êı×ÖµÄ ASCII
+        tmp = random() % 36;	// éšæœºä¸€ä¸ªå°äº 36 çš„æ•´æ•°ï¼Œ0-9ã€A-Z å…± 36 ç§å­—ç¬¦
+        if (tmp < 10) {			// å¦‚æœéšæœºæ•°å°äº 10ï¼Œå˜æ¢æˆä¸€ä¸ªé˜¿æ‹‰ä¼¯æ•°å­—çš„ ASCII
             tmp += '0';
         }
-        else {				// ·ñÔò£¬±ä»»³ÉÒ»¸ö´óĞ´×ÖÄ¸µÄ ASCII
+        else {				// å¦åˆ™ï¼Œå˜æ¢æˆä¸€ä¸ªå¤§å†™å­—æ¯çš„ ASCII
             tmp -= 10;
             tmp += 'A';
         }
@@ -36,32 +36,60 @@ int keyRand() {
     constexpr int MAX = 99999999;
     random_device rd;
     std::default_random_engine eng(rd());
-    uniform_int_distribution<int> distr(MIN, MAX);
+    std::uniform_int_distribution<int> distr(MIN, MAX);
     return distr(eng);
 }
 
 
+char* generate_key(){
+    char* key = nullptr;
+    // TODO: generate key
 
-int main() {
+    return key;
+}
 
-    cout << keyRand();
-
-
-         return 0;
- }
-
-
+std::pair<char*, int> generate_key_value(){
+    char* key = nullptr;
+    int value = 0;
+    // TODO: generate key and value
     
+    return std::make_pair(key, value);
+}
 
+char* request_master(const char* ip, int port){
+    // TODO: send key to master, get distribution
+    return NULL;
+}
 
+bool write_distribution(){
+    // TODO: save distribution locally
+    return true;
+}
 
+char* request_cache(const char* ip, int port){
+    // TODO: send (key, value) to cache server
+    return NULL;
+}
 
+void client(const char* ip1, int port1, const char* ip2, int port2){
+    std::pair<char*, int> p;
+    while(true){
+        generate_key_value();
+        request_master(ip1, port1);
+        write_distribution();
+        request_cache(ip2, port2);
+    }
+}
 
-
-
-
-
-
-
-
-
+int main(int argc, char** argv){
+    if (argc <= 4){
+        printf("Usage: ./cache $IP1 $PORT1 $IP2 $PORT2\n");
+        return 0;
+    }
+    char* ip1 = argv[1];
+    int port1 = atoi(argv[2]);
+    char* ip2 = argv[3];
+    int port2 = atoi(argv[4]);
+    client(ip1, port1, ip2, port2);
+    return 0;
+}
