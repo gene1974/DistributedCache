@@ -1,13 +1,14 @@
 # DistributedCache
 
-#### Socket 通信
+### Socket 通信
 
-接口示例如下：
+接口示例：
 
 Client:
 
 ```C++
 #include "socket_client.h"
+
 // 建立 socket client：
 SocketClient socket_client();
 // 连接 server 并发送一条信息：
@@ -20,6 +21,7 @@ Server:
 
 ```C++
 #include "socket_server.h"
+
 // 建立 socket client：
 SocketServer socker_server("127.0.0.1", 6666);
 // 循环监听端口信息：
@@ -35,5 +37,5 @@ g++ socket_server.cpp -o server && ./server
 
 Terminal 2：
 ```Shell
-g++ socket_server.cpp -o server && ./server
+g++ socket_client.cpp -o client && ./client
 ```
