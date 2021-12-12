@@ -9,7 +9,7 @@ int main() {
     consistent_hash hash = consistent_hash();
     hash.add_real_node("192.168.127.136", 300);
 
-    hash.put("metang1996");
+    hash.put("zzzling956");
     hash.put("Tsinghua");
     hash.put("hello world");
     hash.put("test add data");
