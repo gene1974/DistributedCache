@@ -1,71 +1,33 @@
-/**
- *	测试 
- */
+#include <iostream>
+#include "my_hash.h"
+#include <sys/types.h>
 
-
-#include "conHash.h"
-#include <sstream>
-#include <fstream>
 using namespace std;
-
-//产生随机IP地址
-string RandIP();
+#pragma comment(lib, "ws2_32.lib")
 
 int main() {
-	
-	printf("A simple test of Consistent Hashing\n");
+    consistent_hash hash = consistent_hash();
+    hash.add_real_node("192.168.127.136", 300);
 
-	conHash _conhash = conHash();
+    hash.put("metang1996");
+    hash.put("Tsinghua");
+    hash.put("hello world");
+    hash.put("test add data");
+    hash.put("python");
+    hash.put("c++");
 
-	cout << "-----------------ADD SERVICE NODES----------------------" << endl;
-	// 创建服务器节点
-	hashNode* node_0 = new hashNode("192.168.127.140", 30);
-	hashNode* node_1 = new hashNode("192.168.127.141", 30);
-	hashNode* node_2 = new hashNode("192.168.127.142", 30);
+    cout << endl << "---------------------------------step 1---------------------------------" << endl;
+    hash.print();
 
-	// 加入服务器节点
-	_conhash.addNode(node_0);
-	_conhash.addNode(node_1);
-	_conhash.addNode(node_2);
+    cout << endl << "---------------------------------step 2---------------------------------" << endl;
+    hash.add_real_node("192.168.127.137", 300);
+    hash.add_real_node("192.168.127.138", 300);
+    hash.print();
 
-	
-	// 分别输出真实和虚拟服务节点的个数
-	cout << "The total num of service node: " << _conhash.getServiceNodeNum() << endl;
-	cout << "The total num of virtual service node: " << _conhash.getVirtualNodeNum() << endl;
-
-	cout << "-----------------------TEST--------------------------" << endl;
-	// 模拟请求
-	for(int i = 0; i < 10000; ++i) 
-		cout << _conhash.getService(RandIP());
-
-
-	cout << "-------------------SHOW SERVICE----------------------" << endl;
-	// 查看每个节点负责的请求
-	_conhash.showService();
-
-
-	// 删除某个服务节点
-	cout << "----------------------DELETE-------------------------" << endl;
-	_conhash.delNode(node_0);
-	cout << "The total num of service node: " << _conhash.getServiceNodeNum() << endl;
-	cout << "The total num of virtual service node: " << _conhash.getVirtualNodeNum() << endl;
-
-
-	delete node_1;
-	delete node_2;
-	
-	return 0;
+    cout << endl << "---------------------------------step 3---------------------------------" << endl;
+    hash.drop_real_node("192.168.127.136");
+    hash.print();
+    return 0;
 }
 
-//产生随机IP地址
-string RandIP()
-{
-	stringstream ip;
-	for (int i = 0; i < 4; ++i) {
-		ip << (rand() % 256);
-		if (i < 3)
-			ip << '.';
-	}
 
-	return ip.str();
-}
