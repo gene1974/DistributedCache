@@ -9,19 +9,15 @@
 
 class SocketClient{
 public:
-    bool connect_server(const char* ip, int port);
-    bool send_line(const char* sendline);
-    bool close_connect();
     bool connect_and_send(const char* ip, int port, const char* sendline);
     bool send_stdin(const char* ip, int port);
+    char* send_to_port(const char* ip, int port, const char* sendline);
 
 private:
     //bool _init(const char* ip, int port);
-    bool _connect(const char* ip, int port);
-    bool _send(const char* sendline);
-    bool _close();
-
-    int   sockfd, n;
+    const static int MAXSIZE = 4096;
+    char sendline[MAXSIZE], recvline[MAXSIZE];
+    int sockfd, n;
     struct sockaddr_in  servaddr;
 };
 
