@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
-
+#include  <sstream>
+#include  <string>
 #include "socket_server.h"
 
 // 处理扩容缩容请求
@@ -9,8 +10,37 @@ void reset_cache(char* recvline){
 }
 
 // 完成 client 请求的查询或写入
-void write_cache(char* recvline){
+void write_cache(string recvline){
     // TODO: 解析从 client 收到的请求 recvline, 完成数据的查询或写入
+    
+    //LRU_Cache* lruCache = new LRU_Cache(5);这一行放哪儿？？？
+    switch (revline[0])
+    {
+        case 'w': {
+            string str_key = revline.substr(1, 9);
+            int key;
+            stringstream ss(str_key);
+            ss >> key;
+            string value = revline.substr(9);
+            lruCache->Insert(key, value);
+        }
+            break;
+        case 'r': {
+            string str_key = revline.substr(1, 9);
+            int key;
+            stringstream ss(str_key);
+            ss >> key;
+            lruCache->Get(key);
+        }
+            break;
+        case 's': {
+            cout << "The size is " << lruCache->GetSize() << endl;
+            lruCache->show();
+        }
+            break;
+        default:
+            printf("Client传入命令出错\n");
+    }
 }
 
 // 线程1，接收 client 的查询写入请求
@@ -32,6 +62,7 @@ int main(int argc, char** argv){
         printf("Usage: ./cache $IP $PORT1 $PORT2\n");
         return 0;
     }
+
     char* ip = argv[1];
     int port1 = atoi(argv[2]);
     int port2 = atoi(argv[3]);

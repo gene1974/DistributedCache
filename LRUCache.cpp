@@ -4,17 +4,17 @@
 #include <map>  
 #include <algorithm>
 
-ListNode::ListNode(int key, int value): l_key(key), l_value(value), Pre(NULL), Next(NULL){};
+ListNode::ListNode(int key, string value) : l_key(key), l_value(value), Pre(NULL), Next(NULL) {};
 
-LRU_Cache::LRU_Cache(int size): m_capacity(size), pHead(nullptr), pTail(nullptr){}
+LRU_Cache::LRU_Cache(int size) : m_capacity(size), pHead(nullptr), pTail(nullptr) {}
 
-LRU_Cache::~LRU_Cache(){
+LRU_Cache::~LRU_Cache() {
     map<int, ListNode*>::iterator it = mp.begin();
     for (; it != mp.end();)
     {
         delete it->second;
         it->second = NULL;
-        mp.erase(it++);  
+        mp.erase(it++);
     }
     delete pHead;
     pHead == NULL;
@@ -66,7 +66,7 @@ void LRU_Cache::SetHead(ListNode* pNode)
     }
 }
 
-void LRU_Cache::Insert(int key, int value)
+void LRU_Cache::Insert(int key, string value)
 {
     map<int, ListNode*>::iterator it = mp.find(key);//如果新key等于旧key，则更新value
     if (it != mp.end())
@@ -81,13 +81,13 @@ void LRU_Cache::Insert(int key, int value)
         ListNode* NewNode = new ListNode(key, value);
         if (mp.size() >= m_capacity)
         {
-            cout << endl << "警告：已经超出最大容量:" << m_capacity << "个数据" << endl;
+            //cout << endl << "警告：已经超出最大容量:" << m_capacity << "个数据" << endl;
             int x = pTail->l_key;
             map<int, ListNode*>::iterator it = mp.find(x);
             Remove(pTail); //移除表尾指针内存
-            int y = it->second->l_value;
+            string y = it->second->l_value;
             delete it->second;//删除value
-            cout << endl << "为您移除key为" << x << ",value为" << y << "的节点" << endl;
+            //cout << endl << "为您移除key为" << x << ",value为" << y << "的节点" << endl;
             mp.erase(it);
         }
         SetHead(NewNode);//放到头部
@@ -95,7 +95,7 @@ void LRU_Cache::Insert(int key, int value)
     }
 }
 
-int LRU_Cache::Get(int key)
+string LRU_Cache::Get(int key)
 {
     map<int, ListNode*>::iterator it = mp.find(key);
     if (it != mp.end())
@@ -107,7 +107,7 @@ int LRU_Cache::Get(int key)
     }
     else
     {
-        return -1;     //有待商讨
+        return "Sorry, we don't find it";    
     }
 }
 
@@ -123,7 +123,7 @@ void LRU_Cache::show() {
     else {
         map<int, ListNode*>::iterator it = mp.begin();
         cout << "当前一共有" << n << "个数据: " << endl;
-        for (; it != mp.end(); ++it) 
+        for (; it != mp.end(); ++it)
         {
             cout << "key值为:" << it->first << ",value值为: " << it->second->l_value << endl;
             i++;
