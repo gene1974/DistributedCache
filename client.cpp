@@ -108,7 +108,7 @@ bool SingleLinkedList<T>::append(T value , T address) {
     }
        
     Node<T>* temp = this->head;
-    while (temp->next != NULL) {//从头节点开始，找到最后一个节点，判断条件中必须是n->next，而不能是n
+    while (temp->next != NULL) {//从头节点开始，找到最后一个节点
         temp = temp->next;
     }
     temp->next = newNode;
@@ -133,10 +133,9 @@ bool SingleLinkedList<T>::insert(int index, T value, T address) {
     else if (index == size) {//插入新节点作为尾部节点
         append(value, address);
     }
-    else {//插入位置新节点到index索引之上
-        //获取index索引上的节点
-        Node<T>* nIndex_pre = node(index - 1);//获取index-1位置上的节点
-        Node<T>* nIndex = node(index);//获取index索引上的节点
+    else {
+        Node<T>* nIndex_pre = node(index - 1);
+        Node<T>* nIndex = node(index);
         nIndex_pre->next = newNode;
         newNode->next = nIndex;
     }
@@ -150,16 +149,16 @@ void SingleLinkedList<T>::print() {
     //如果链表为空
     if (NULL == this->head) {
         cout << "This list is empty.";
-        return;//结果方法运行，下面的代码不再执行
+        return;
     }
     //链表不为空
     Node<T>* n = this->head;
-    while (NULL != n) {//此处的判断条件中，只能是n，而不能用n->next
+    while (NULL != n) {
         cout << n->value << "--"<<n->address;
         cout << endl;
         n = n->next;
     }
-    cout << '\n';//换行
+    cout << '\n';
 }
 template<typename T>
 T SingleLinkedList<T>::get(int index) {
@@ -169,13 +168,13 @@ template<typename T>
 bool SingleLinkedList<T>::remove(int index) {
     checkIndex(index);
 
-    if (index == 0) {//删除是头节点
+    if (index == 0) {
         Node<T>* nHead = this->head;
         Node<T>* nHead_next = nHead->next;
 
         this->head = nHead_next;
     }
-    else if (index == size) {//删除的是链表最后一个节点
+    else if (index == size) {
         Node<T>* nIndex_pre = node(index - 1);
         nIndex_pre->next = NULL;
     }

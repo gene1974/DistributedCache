@@ -7,7 +7,7 @@ public:
     /*节点存储的数据*/
     T value;
     T address;
-    /*指向下一个节点的指针*/
+    
     Node* next;
 
 public:
