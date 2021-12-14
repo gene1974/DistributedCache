@@ -1,27 +1,28 @@
 #include <iostream>
-#include <map> 
-#include <random>
 #include <string>  
-#include <thread>
+#include <random>
+#include <sstream> 
+#include "SingleLinkedList.h"
 
+using namespace std;
 using std::string;
 using std::random_device;
 using std::default_random_engine;
 
-string strRand(int length = 8) {			// length: äº§ç”Ÿå­—ç¬¦ä¸²çš„é•¿åº¦
-    char tmp;							// tmp: æš‚å­˜ä¸€ä¸ªéšæœºæ•°
-    string buffer;						// buffer: ä¿å­˜è¿”å›å€¼
+string strRand(int length = 8) {			// length: ²úÉú×Ö·û´®µÄ³¤¶È
+    char tmp;							// tmp: Ôİ´æÒ»¸öËæ»úÊı
+    string buffer;						// buffer: ±£´æ·µ»ØÖµ
 
    
-    random_device rd;					// äº§ç”Ÿä¸€ä¸ª std::random_device å¯¹è±¡ rd
-    default_random_engine random(rd());	// ç”¨ rd åˆå§‹åŒ–ä¸€ä¸ªéšæœºæ•°å‘ç”Ÿå™¨ random
+    random_device rd;					// ²úÉúÒ»¸ö std::random_device ¶ÔÏó rd
+    default_random_engine random(rd());	// ÓÃ rd ³õÊ¼»¯Ò»¸öËæ»úÊı·¢ÉúÆ÷ random
 
     for (int i = 0; i < length; i++) {
-        tmp = random() % 36;	// éšæœºä¸€ä¸ªå°äº 36 çš„æ•´æ•°ï¼Œ0-9ã€A-Z å…± 36 ç§å­—ç¬¦
-        if (tmp < 10) {			// å¦‚æœéšæœºæ•°å°äº 10ï¼Œå˜æ¢æˆä¸€ä¸ªé˜¿æ‹‰ä¼¯æ•°å­—çš„ ASCII
+        tmp = random() % 36;	// Ëæ»úÒ»¸öĞ¡ÓÚ 36 µÄÕûÊı£¬0-9¡¢A-Z ¹² 36 ÖÖ×Ö·û
+        if (tmp < 10) {			// Èç¹ûËæ»úÊıĞ¡ÓÚ 10£¬±ä»»³ÉÒ»¸ö°¢À­²®Êı×ÖµÄ ASCII
             tmp += '0';
         }
-        else {				// å¦åˆ™ï¼Œå˜æ¢æˆä¸€ä¸ªå¤§å†™å­—æ¯çš„ ASCII
+        else {				// ·ñÔò£¬±ä»»³ÉÒ»¸ö´óĞ´×ÖÄ¸µÄ ASCII
             tmp -= 10;
             tmp += 'A';
         }
@@ -29,67 +30,190 @@ string strRand(int length = 8) {			// length: äº§ç”Ÿå­—ç¬¦ä¸²çš„é•¿åº¦
     }
     return buffer;
 }
-
 int keyRand() {
 
     constexpr int MIN = 10000000;
     constexpr int MAX = 99999999;
-    random_device rd;
-    std::default_random_engine eng(rd());
-    std::uniform_int_distribution<int> distr(MIN, MAX);
-    return distr(eng);
+    std::random_device rd;  // ½«ÓÃÓÚÎªËæ»úÊıÒıÇæ»ñµÃÖÖ×Ó
+    std::mt19937 gen(rd()); // ÒÔ²¥ÖÖ±ê×¼ mersenne_twister_engine
+    uniform_int_distribution <int> dis(MIN, MAX);
+    // ÓÃ dis ±ä»» gen ËùÉú³ÉµÄËæ»ú unsigned int µ½ [MIN, MAX] ÖĞµÄ int
+    return dis(gen);
 }
+string *gendata(int n = 1) {
+    string* datalist= new string[n]();
+    for (int i = 0; i < n; ++i) {
+        datalist[i] = std::to_string(keyRand()) + strRand();
+     
+    }
+    return datalist;
 
-
-char* generate_key(){
-    char* key = nullptr;
-    // TODO: generate key
-
-    return key;
 }
+string writevalue(int n) { 
+    string* b;
+    b = gendata(n);
+        for (int i = 0; i < n; i++)
+        {
+            *(b + i) = 'w' + *(b + i);
+           
+            cout  << *(b + i) << endl;
+        }
+        return *b;
+     }
 
-std::pair<char*, int> generate_key_value(){
-    char* key = nullptr;
-    int value = 0;
-    // TODO: generate key and value
     
-    return std::make_pair(key, value);
+
+template<typename T>
+SingleLinkedList<T>::SingleLinkedList() {
+    this->head = new Node<T>();//µ÷ÓÃÄ¬ÈÏ¹¹ÔìÆ÷
+    this->size = 0;//³õÊ¼»¯³¤¶ÈÎª0
+    this->head->next = NULL;
 }
 
-char* request_master(const char* ip, int port){
-    // TODO: send key to master, get distribution
-    return NULL;
+template<typename T>
+SingleLinkedList<T>::~SingleLinkedList() {
+
 }
 
-bool write_distribution(){
-    // TODO: save distribution locally
+template<typename T>
+int SingleLinkedList<T>::length() {
+    return this->size;
+}
+
+
+template<typename T>
+bool SingleLinkedList<T>::checkIndex(int index) {
+    return index >= 0 && index <= size;
+}
+
+
+template<typename T>
+Node<T> * SingleLinkedList<T>::node(int index) {
+    checkIndex(index);
+    Node<T>* n = this->head;
+    for (int i = 0; i < index; i++) {
+        n = n->next;
+    }
+    return n;
+}
+
+
+template<typename T>
+bool SingleLinkedList<T>::append(T value , T address) {
+    Node<T>* newNode = new Node<T>( value,  address);//¹¹Ôì½Úµã¶ÔÏó
+
+    
+    if (this->size == 0) {
+        this->head = newNode;
+    }
+       
+    Node<T>* temp = this->head;
+    while (temp->next != NULL) {//´ÓÍ·½Úµã¿ªÊ¼£¬ÕÒµ½×îºóÒ»¸ö½Úµã£¬ÅĞ¶ÏÌõ¼şÖĞ±ØĞëÊÇn->next£¬¶ø²»ÄÜÊÇn
+        temp = temp->next;
+    }
+    temp->next = newNode;
+    newNode->next = NULL;
+
+    size++;
+
     return true;
 }
 
-char* request_cache(const char* ip, int port){
-    // TODO: send (key, value) to cache server
-    return NULL;
+
+template<typename T>
+bool SingleLinkedList<T>::insert(int index, T value, T address) {
+    checkIndex(index);
+
+    Node<T>* newNode = new Node<T>( value, address);
+
+    if (index == 0) {//²åÈëĞÂ½Úµã×÷ÎªÁ´±íÍ·½Úµã
+        newNode->next = this->head;
+        this->head = newNode;
+    }
+    else if (index == size) {//²åÈëĞÂ½Úµã×÷ÎªÎ²²¿½Úµã
+        append(value, address);
+    }
+    else {//²åÈëÎ»ÖÃĞÂ½Úµãµ½indexË÷ÒıÖ®ÉÏ
+        //»ñÈ¡indexË÷ÒıÉÏµÄ½Úµã
+        Node<T>* nIndex_pre = node(index - 1);//»ñÈ¡index-1Î»ÖÃÉÏµÄ½Úµã
+        Node<T>* nIndex = node(index);//»ñÈ¡indexË÷ÒıÉÏµÄ½Úµã
+        nIndex_pre->next = newNode;
+        newNode->next = nIndex;
+    }
+    size++;
+    return true;
 }
 
-void client(const char* ip1, int port1, const char* ip2, int port2){
-    std::pair<char*, int> p;
-    while(true){
-        generate_key_value();
-        request_master(ip1, port1);
-        write_distribution();
-        request_cache(ip2, port2);
+
+template<typename T>
+void SingleLinkedList<T>::print() {
+    //Èç¹ûÁ´±íÎª¿Õ
+    if (NULL == this->head) {
+        cout << "This list is empty.";
+        return;//½á¹û·½·¨ÔËĞĞ£¬ÏÂÃæµÄ´úÂë²»ÔÙÖ´ĞĞ
+    }
+    //Á´±í²»Îª¿Õ
+    Node<T>* n = this->head;
+    while (NULL != n) {//´Ë´¦µÄÅĞ¶ÏÌõ¼şÖĞ£¬Ö»ÄÜÊÇn£¬¶ø²»ÄÜÓÃn->next
+        cout << n->value << "--"<<n->address;
+        cout << endl;
+        n = n->next;
+    }
+    cout << '\n';//»»ĞĞ
+}
+template<typename T>
+T SingleLinkedList<T>::get(int index) {
+    return node(index)->address;
+}
+template<typename T>
+bool SingleLinkedList<T>::remove(int index) {
+    checkIndex(index);
+
+    if (index == 0) {//É¾³ıÊÇÍ·½Úµã
+        Node<T>* nHead = this->head;
+        Node<T>* nHead_next = nHead->next;
+
+        this->head = nHead_next;
+    }
+    else if (index == size) {//É¾³ıµÄÊÇÁ´±í×îºóÒ»¸ö½Úµã
+        Node<T>* nIndex_pre = node(index - 1);
+        nIndex_pre->next = NULL;
+    }
+    else {//É¾³ıµÄÊÇÖĞ¼ä½Úµã
+        Node<T>* nPre = node(index - 1);
+        Node<T>* nNext = node(index + 1);
+        nPre->next = nNext;
+    }
+    size--;
+    return true;
+}
+template<typename T>
+void SingleLinkedList<T>::freeList() {
+
+    Node<T>* n1 = this->head, * n2;
+    while (NULL != n1) {
+        n2 = n1->next;
+        delete n1;
+        n1 = n2;
     }
 }
 
-int main(int argc, char** argv){
-    if (argc <= 4){
-        printf("Usage: ./cache $IP1 $PORT1 $IP2 $PORT2\n");
+
+
+
+
+    int main(){
+        
+        SingleLinkedList<string> list;
+        list.append(*gendata(1), "1");
+        list.append(*gendata(1), "1");
+        list.append(*gendata(1), "2");
+        list.append(*gendata(1), "3");
+        list.append(*gendata(1), "0");
+        list.print();
+        cout << list.length() << endl;
+       
+
         return 0;
+
     }
-    char* ip1 = argv[1];
-    int port1 = atoi(argv[2]);
-    char* ip2 = argv[3];
-    int port2 = atoi(argv[4]);
-    client(ip1, port1, ip2, port2);
-    return 0;
-}
