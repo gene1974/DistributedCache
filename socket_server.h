@@ -12,10 +12,15 @@
 class SocketServer{
 public:
     SocketServer(const char* ip, int port);
+    ~SocketServer();
     bool _init(const char* ip, int port);
-    bool listen_to_port(char* (*fun)(char*));
+    char* listen_once();
+    bool listen_to_port(char* (*function)(char*));
 
 private:
+    char* _ip;
+    int _port;
+
     const static int MAXSIZE = 4096;
     int  listenfd, connfd;
     struct sockaddr_in  servaddr;

@@ -131,3 +131,31 @@ void LRU_Cache::show() {
     }
 }
 
+void LRU_Cache::reset_size(int size_num)
+{
+    if (size_num > m_capacity) {
+        cout << "执行扩容操作：" << endl;
+        m_capacity = size_num;
+        cout << "容量大小变为" << m_capacity <<endl;
+    }
+    else if(size_num < m_capacity)
+    {
+        int n = m_capacity - size_num;
+        while (n > 0)
+        {
+            int x = pTail->l_key;
+            map<int, ListNode*>::iterator it = mp.find(x);
+            Remove(pTail); //移除表尾指针内存
+            string y = it->second->l_value;
+            delete it->second;//删除value
+            m_capacity--;
+            cout << endl << "为您移除key为" << x << ",value为" << y << "的节点" << "并缩容到" << m_capacity << endl;
+            mp.erase(it);
+            n--;
+        }
+        
+    }
+    else {
+        cout << "容量大小未发生变化" << endl;
+    }
+}

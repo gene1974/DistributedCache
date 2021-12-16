@@ -1,6 +1,10 @@
+#include <cstring>
 #include "socket_server.h"
 
 SocketServer::SocketServer(const char* ip, int port){
+    _ip = new char[20];
+    strcpy(_ip, ip);
+    _port = port;
     _init(ip, port);
 }
 
@@ -23,6 +27,28 @@ bool SocketServer::_init(const char* ip, int port){
         return false;
     }
     return true;
+}
+
+char* SocketServer::listen_once(){
+    int n = 0;
+    if( listen(listenfd, 10) == -1){
+        printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);
+        return nullptr;
+    }
+    if( (connfd = accept(listenfd, (struct sockaddr*)NULL, NULL)) == -1){
+        printf("accept socket error: %s(errno: %d)",strerror(errno),errno);
+        return nullptr;
+    }
+    n = recv(connfd, buff, MAXSIZE, 0);
+    while (buff[n - 1] == '\r' || buff[n - 1] == '\n'){
+        n--;
+    }
+    // std::cout << n << std::endl;
+    buff[n] = '\0';
+    printf("recv msg from client: %s\n", buff);
+    close(connfd);
+    close(listenfd);
+    return buff;
 }
 
 bool SocketServer::listen_to_port(char* (*function)(char*)){

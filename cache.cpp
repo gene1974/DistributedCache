@@ -2,40 +2,68 @@
 #include <thread>
 #include  <sstream>
 #include  <string>
-#include "socket_server.h"
+#include "cache.h"
 
-// 处理扩容缩容请求
-void reset_cache(char* recvline){
-    // TODO: 解析从 master 收到的请求 recvline, 完成扩容缩容请求
+Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size){
+    _ip = new char[20];
+    _master_ip = new char[20];
+    _buff = new char[MAXLEN];
+
+    _size = size;
+    _lruCache = new LRU_Cache(size);
+    strcpy(_ip, ip);
+    strcpy(_master_ip, master_ip);
+    _port_to_client = port1;
+    _port_to_master = port2;
+    _master_port = master_port;
+}
+
+Cache::~Cache(){
+    delete _ip;
+    delete _master_ip;
+    delete _buff;
+}
+
+void Cache::run_cache(){
+    std::thread _thread_listen_to_client(listen_to_client);
+    std::thread _thread_listen_to_master(listen_to_master);
+    std::thread _thread_heart(heart);
+    _thread_listen_to_client.join();
+    _thread_listen_to_master.join();
+    _thread_heart.join();
+}
+
+// 处理master发来的扩容缩容请求
+void Cache::reset_cache(char* recvline){
+    int new_size = atoi(recvline);
+    _lruCache->reset_size(new_size);
 }
 
 // 完成 client 请求的查询或写入
-void write_cache(string recvline){
-    // TODO: 解析从 client 收到的请求 recvline, 完成数据的查询或写入
-    
-    //LRU_Cache* lruCache = new LRU_Cache(5);这一行放哪儿？？？
-    switch (revline[0])
+void Cache::write_cache(char* line){
+    std::string recvline = line;
+    switch (recvline[0])
     {
         case 'w': {
-            string str_key = revline.substr(1, 9);
+            std::string str_key = recvline.substr(1, 9);
             int key;
-            stringstream ss(str_key);
+            std::stringstream ss(str_key);
             ss >> key;
-            string value = revline.substr(9);
-            lruCache->Insert(key, value);
+            std::string value = recvline.substr(9);
+            _lruCache->Insert(key, value);
         }
             break;
         case 'r': {
-            string str_key = revline.substr(1, 9);
+            std::string str_key = recvline.substr(1, 9);
             int key;
-            stringstream ss(str_key);
+            std::stringstream ss(str_key);
             ss >> key;
-            lruCache->Get(key);
+            _lruCache->Get(key);
         }
             break;
         case 's': {
-            cout << "The size is " << lruCache->GetSize() << endl;
-            lruCache->show();
+            std::cout << "The size is " << _lruCache->GetSize() << std::endl;
+            _lruCache->show();
         }
             break;
         default:
@@ -44,31 +72,45 @@ void write_cache(string recvline){
 }
 
 // 线程1，接收 client 的查询写入请求
-void listen_to_client(const char* ip, int port){
-    //std::cout << "Hello world1!\n";
-    SocketServer server(ip, port);
-    server.listen_to_port();
+void Cache::listen_to_client(){
+    SocketServer _server_to_client(_ip, _port_to_client);
+    while(true){
+        char* recvline = _server_to_client.listen_once();
+        write_cache(recvline);
+    }
+    
 }
 
 // 线程2，接收 master 的扩容缩容请求
-void listen_to_master(const char* ip, int port){
-    //std::cout << "Hello world2!\n";
-    SocketServer server(ip, port);
-    server.listen_to_port();
-}
-
-int main(int argc, char** argv){
-    if (argc <= 3){
-        printf("Usage: ./cache $IP $PORT1 $PORT2\n");
-        return 0;
+void Cache::listen_to_master(){
+    SocketServer _server_to_master(_ip, _port_to_master);
+    while(true){
+        char* recvline = _server_to_master.listen_once();
+        reset_cache(recvline);
     }
-
-    char* ip = argv[1];
-    int port1 = atoi(argv[2]);
-    int port2 = atoi(argv[3]);
-    std::thread t1(listen_to_client, ip, port1);
-    std::thread t2(listen_to_master, ip, port2);
-    t1.join();
-    t2.join();
-    return 0;
 }
+
+
+// 线程3，汇报心跳
+void Cache::heart(){
+    //TODO
+    _client_to_master.send_line(_master_ip, _master_port, "heart");
+    
+    
+}
+
+// int main(int argc, char** argv){
+//     if (argc <= 3){
+//         printf("Usage: ./cache $IP $PORT1 $PORT2\n");
+//         return 0;
+//     }
+
+//     char* ip = argv[1];
+//     int port1 = atoi(argv[2]);
+//     int port2 = atoi(argv[3]);
+//     std::thread t1(listen_to_client, ip, port1);
+//     std::thread t2(listen_to_master, ip, port2);
+//     t1.join();
+//     t2.join();
+//     return 0;
+// }

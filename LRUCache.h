@@ -25,6 +25,7 @@ public:
 	string Get(int key);
 	int GetSize();
 	void show();
+	void reset_size(int size_num);
 private:
 	int m_capacity;
 	ListNode* pHead;
