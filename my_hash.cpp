@@ -99,7 +99,7 @@ unsigned int consistent_hash::find_nearest_node(unsigned int hash_value) {
     return low;
 }
 
-void consistent_hash::add_real_node(string ip, unsigned int virtual_node_num) {
+void consistent_hash::add_real_node(string ip, unsigned int virtual_node_num = 300) {
     cout << "[add_real_node]\t" << ip << endl;
     real_node *node;
    

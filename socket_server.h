@@ -17,6 +17,9 @@ public:
     char* listen_once();
     bool listen_to_port(char* (*function)(char*));
 
+    char* listen_without_close();
+    bool response_and_close(char* sendline);
+
 private:
     char* _ip;
     int _port;

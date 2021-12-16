@@ -47,8 +47,14 @@ char* SocketClient::send_line(const char* ip, int port, const char* sendline){
     return nullptr;
 }
 
-int main(int argc, char** argv){
-    SocketClient client;
-    //client.send_stdin("127.0.0.1", 6666);
-    return 0;
+char* SocketClient::send_line(std::string ip_port, const char* sendline){
+    auto r = _convert_ip(ip_port);
+    return send_line(r.first.c_str(), r.second, sendline);
+}
+
+std::pair<std::string, int> SocketClient::_convert_ip(std::string ip_port){
+    size_t split = ip_port.find(':');
+    int port = atoi(ip_port.c_str() + split + 1);
+    ip_port[split] = '\0';
+    return std::make_pair(ip_port, port);
 }

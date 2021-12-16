@@ -15,12 +15,6 @@ public:
     void listen_to_master();
 
     void heart();
-
-    std::pair<char*, int> request_master(std::string sendline);
-    bool write_local(std::string key, std::pair<char*, int> cache);
-    char* request_cache(const char* ip, int port, std::string data);
-    int get_size();
-    void set_size();
 private:
     char* _ip;
     int _port_to_client;

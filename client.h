@@ -12,6 +12,8 @@ public:
     bool write_local(std::string key, std::pair<char*, int> cache);
     char* request_cache(const char* ip, int port, std::string data);
 private:
+    char* _ip;
+    int _port;
     char* master_ip;
     int master_port;
     char* cache_ip;

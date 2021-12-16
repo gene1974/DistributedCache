@@ -109,6 +109,7 @@ void Client::run_client(){
 }
 
 Client::Client(const char* ip, int port){
+    _ip = new char[20];
     master_ip = new char[20];
     cache_ip = new char[20];
     buff = new char[MAXLEN];

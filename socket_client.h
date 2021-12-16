@@ -9,11 +9,13 @@
 
 class SocketClient{
 public:
+    char* send_line(std::string ip_port, const char* sendline);
     char* send_line(const char* ip, int port, const char* sendline);
 private:
     bool _connect_and_send(const char* ip, int port, const char* sendline);
     bool _send_stdin(const char* ip, int port);
     char* _send_to_port(const char* ip, int port, const char* sendline);
+    std::pair<std::string, int> _convert_ip(std::string ip_port);
 
     const static int MAXSIZE = 4096;
     char sendline[MAXSIZE], recvline[MAXSIZE];

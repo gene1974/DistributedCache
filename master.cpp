@@ -3,71 +3,91 @@
 
 #include "socket_server.h"
 #include "socket_client.h"
+#include "master.h"
 
-// 处理扩容缩容请求
-void check_distribution(char* recvline){
-    // TODO: 解析从 client 收到的请求 recvline, 完成扩容缩容请求
+Master::Master(const char* ip, int port1, int port2, unsigned interval){
+    _ip = new char[20];
+
+    strcpy(_ip, ip);
+    _port_to_client = port1;
+    _port_to_cache = port2;
+    _interval = interval;
 }
 
-// 完成 client 请求的查询或写入
-void write_cache(char* recvline){
-    // TODO: 解析从 cache 收到的心跳 recvline, 完成数据的查询或写入
+Master::~Master(){
+    delete _ip;
+    //delete _buff;
 }
 
-// 检查所有 cache 是否正常
-bool check_heartpoint(){
-    // TODO
-    return true;
-}
-
-// 重新设置 cache，完成容灾
-bool reset_cache(){
-    // TODO
-    return true;
+void Master::run_master(){
+    std::thread _thread_listen_to_client(listen_to_client);
+    std::thread _thread_listen_heart(listen_heart);
+    std::thread _thread_send_to_cache(send_to_cache);
+    _thread_listen_to_client.join();
+    _thread_listen_heart.join();
+    _thread_send_to_cache.join();
 }
 
 // 线程1，接收 client 的查询分布请求
-void listen_to_client(const char* ip, int port){
-    //std::cout << "Hello world1!\n";
-    SocketServer server(ip, port);
-    server.listen_to_port();
+void Master::listen_to_client(){
+    SocketServer server_to_client(_ip, _port_to_client);
+    while(true){
+        char* recvline = server_to_client.listen_without_close();
+        _hash.put(recvline);
+        // TODO: sendline
+        char* sendline = recvline;
+        server_to_client.response_and_close(sendline);
+    }
 }
 
 // 线程2，接收 cache 的心跳信息
-void listen_to_cache(const char* ip, int port){
-    //std::cout << "Hello world2!\n";
-    SocketServer server(ip, port);
-    server.listen_to_port();
-    
+void Master::listen_heart(){
+    SocketServer server_heart(_ip, _port_to_cache);
+    while(1){
+        char* recvline = server_heart.listen_once();
+        string ip = recvline;
+        if (_last_time.count(ip) == 0){
+            _hash.add_real_node(ip);
+        }
+        _last_time[recvline] = time(NULL);
+    }
 }
 
 // 线程3，整理心跳信息，完成容灾
-void check_cache(const char* ip, int port){
-    //std::cout << "Hello world3!\n";
-    SocketClient client;
+void Master::check_cache(){
+    std::string bad_cache;
     while(true){
-        if(!check_heartpoint()){
-            reset_cache();
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        check_heartpoint();
+        std::this_thread::sleep_for(std::chrono::seconds(_interval));
     }
-    
 }
 
-int main(int argc, char** argv){
-    if (argc <= 4){
-        printf("Usage: ./cache $IP $PORT1 $PORT2 $PORT3\n");
-        return 0;
+void Master::check_heartpoint(){
+    bool need_reset = false;
+    time_t now = time(NULL);
+    time_t heart_time = 0;
+    for (auto iter = _last_time.begin(); iter != _last_time.end(); iter++){
+        heart_time = iter->second;
+        if (now - heart_time > _interval){
+            need_reset = true;
+            remove_cache(iter->first);
+        }
     }
-    char* ip = argv[1];
-    int port1 = atoi(argv[2]);
-    int port2 = atoi(argv[3]);
-    int port3 = atoi(argv[4]);
-    std::thread t1(listen_to_client, ip, port1);
-    std::thread t2(listen_to_cache, ip, port2);
-    std::thread t3(check_cache, ip, port3);
-    t1.join();
-    t2.join();
-    t3.join();
-    return 0;
+    if (need_reset){
+        reset_cache();
+    }
+}
+
+void Master::remove_cache(std::string bad_cache){
+    _hash.drop_real_node(bad_cache);
+    _last_time.erase(bad_cache);
+}
+
+void Master::reset_cache(){
+    for(auto iter = _last_time.begin(); iter != _last_time.end(); iter++){
+        char sendline[255];
+        // TODO: number
+        sprintf(sendline, "%d", 20);
+        _client_to_cache.send_line(iter->first, sendline);
+    }
 }

@@ -73,9 +73,9 @@ void Cache::write_cache(char* line){
 
 // 线程1，接收 client 的查询写入请求
 void Cache::listen_to_client(){
-    SocketServer _server_to_client(_ip, _port_to_client);
+    SocketServer server_to_client(_ip, _port_to_client);
     while(true){
-        char* recvline = _server_to_client.listen_once();
+        char* recvline = server_to_client.listen_once();
         write_cache(recvline);
     }
     
@@ -83,9 +83,9 @@ void Cache::listen_to_client(){
 
 // 线程2，接收 master 的扩容缩容请求
 void Cache::listen_to_master(){
-    SocketServer _server_to_master(_ip, _port_to_master);
+    SocketServer server_to_master(_ip, _port_to_master);
     while(true){
-        char* recvline = _server_to_master.listen_once();
+        char* recvline = server_to_master.listen_once();
         reset_cache(recvline);
     }
 }
