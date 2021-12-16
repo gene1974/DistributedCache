@@ -6,19 +6,21 @@ using namespace std;
 int main()
 {
 	LRU_Cache* lruCache = new LRU_Cache(5);
-
-	lruCache->Insert(1, "fdakf");
-	lruCache->Insert(2, "adfkja");
-	lruCache->Insert(5, "adfa");
-	lruCache->Insert(6, "kjhdf");
+	lruCache->Insert("0", 0);
+	lruCache->Insert("bv", 2);
+	lruCache->Insert("cd", 3);
+	lruCache->Insert("ef", 5);
+	lruCache->Insert("gh", 4);
 	cout << "The size is " << lruCache->GetSize() << endl;
-	cout << "Now we try to get key = 3: " << lruCache->Get(3) << endl;
+	cout << "if key = ab, the value is " << lruCache->Get("ab") << endl;
 
-	lruCache->Insert(4, "adsfkh");
+	lruCache->Insert("yu", 1);
 
 	lruCache->show();
 
-	lruCache->Insert(0, "dasfkha");
+	lruCache->reset_size(7);
+
+	lruCache->Insert("sa", 0);
 
 	lruCache->show();
 
