@@ -1,10 +1,12 @@
-#include <iostream>
-#include <string>  
+// #include <iostream>
 #include <random>
-#include <sstream> 
-#include "SingleLinkedList.h"
+// #include <sstream> 
+// #include <thread>
+#include <cstring>
 
-using namespace std;
+#include "client.h"
+
+//using namespace std;
 using std::string;
 using std::random_device;
 using std::default_random_engine;
@@ -40,179 +42,117 @@ int keyRand() {
     // 用 dis 变换 gen 所生成的随机 unsigned int 到 [MIN, MAX] 中的 int
     return dis(gen);
 }
-string *gendata(int n = 1) {
-    string* datalist= new string[n]();
-    for (int i = 0; i < n; ++i) {
-        datalist[i] = std::to_string(keyRand()) + strRand();
+// string *gendata(int n = 1) {
+//     string* datalist= new string[n]();
+//     for (int i = 0; i < n; ++i) {
+//         datalist[i] = std::to_string(keyRand()) + strRand();
      
-    }
-    return datalist;
+//     }
+//     return datalist;
 
-}
-string writevalue(int n) { 
-    string* b;
-    b = gendata(n);
-        for (int i = 0; i < n; i++)
-        {
-            *(b + i) = 'w' + *(b + i);
+// }
+// string writevalue(int n) { 
+//     string* b;
+//     b = gendata(n);
+//         for (int i = 0; i < n; i++)
+//         {
+//             *(b + i) = 'w' + *(b + i);
            
-            cout  << *(b + i) << endl;
+//             cout  << *(b + i) << endl;
+//         }
+//         return *b;
+//      }
+
+std::pair<std::string, int>  gendata() {
+    return make_pair(strRand(), keyRand());
+    //return std::to_string(keyRand()) + strRand();
+}
+
+std::pair<char*, int> Client::request_master(std::string sendline){
+    auto recvline = socket_client.send_line(master_ip, master_port, sendline.c_str());
+    if (recvline != nullptr){
+        strncpy(cache_ip, recvline, 16);
+        cache_port = atoi(recvline + 16);
+        return make_pair(cache_ip, cache_port);
+    }
+    return make_pair(nullptr, -1);
+}
+
+bool Client::write_local(std::string key, std::pair<char*, int> cache){
+    list.append(key, cache.first + std::to_string(cache.second));
+    return true;
+}
+
+
+char* Client::request_cache(const char* ip, int port, std::string data){
+    auto recvline = socket_client.send_line(master_ip, master_port, data.c_str());
+    return recvline;
+}
+
+void Client::run_client(){
+    std::pair<char*, int> cache;
+    std::pair<std::string, int> data;
+    string sendline;
+    while(true){
+        data = gendata();
+        cache = request_master(data.first); // send key to master
+        write_local(data.first, cache);
+        if (is_write){
+            sendline = 'w' + data.first + std::to_string(data.second);
         }
-        return *b;
-     }
+        else {
+            sendline = 'r' + data.first + std::to_string(data.second);
+        }
+        request_cache(cache.first, cache.second, sendline);
+        sleep(1);
+    }
+}
 
+Client::Client(const char* ip, int port){
+    master_ip = new char[20];
+    cache_ip = new char[20];
+    buff = new char[MAXLEN];
     
-
-template<typename T>
-SingleLinkedList<T>::SingleLinkedList() {
-    this->head = new Node<T>();//调用默认构造器
-    this->size = 0;//初始化长度为0
-    this->head->next = NULL;
+    strcpy(master_ip, ip);
+    master_port = port;
+    is_write = true;
 }
 
-template<typename T>
-SingleLinkedList<T>::~SingleLinkedList() {
-
+Client::~Client(){
+    delete master_ip;
+    delete cache_ip;
 }
 
-template<typename T>
-int SingleLinkedList<T>::length() {
-    return this->size;
-}
-
-
-template<typename T>
-bool SingleLinkedList<T>::checkIndex(int index) {
-    return index >= 0 && index <= size;
-}
-
-
-template<typename T>
-Node<T> * SingleLinkedList<T>::node(int index) {
-    checkIndex(index);
-    Node<T>* n = this->head;
-    for (int i = 0; i < index; i++) {
-        n = n->next;
-    }
-    return n;
-}
-
-
-template<typename T>
-bool SingleLinkedList<T>::append(T value , T address) {
-    Node<T>* newNode = new Node<T>( value,  address);//构造节点对象
-
-    
-    if (this->size == 0) {
-        this->head = newNode;
-    }
-       
-    Node<T>* temp = this->head;
-    while (temp->next != NULL) {//从头节点开始，找到最后一个节点
-        temp = temp->next;
-    }
-    temp->next = newNode;
-    newNode->next = NULL;
-
-    size++;
-
-    return true;
-}
-
-
-template<typename T>
-bool SingleLinkedList<T>::insert(int index, T value, T address) {
-    checkIndex(index);
-
-    Node<T>* newNode = new Node<T>( value, address);
-
-    if (index == 0) {//插入新节点作为链表头节点
-        newNode->next = this->head;
-        this->head = newNode;
-    }
-    else if (index == size) {//插入新节点作为尾部节点
-        append(value, address);
-    }
-    else {
-        Node<T>* nIndex_pre = node(index - 1);
-        Node<T>* nIndex = node(index);
-        nIndex_pre->next = newNode;
-        newNode->next = nIndex;
-    }
-    size++;
-    return true;
-}
-
-
-template<typename T>
-void SingleLinkedList<T>::print() {
-    //如果链表为空
-    if (NULL == this->head) {
-        cout << "This list is empty.";
-        return;
-    }
-    //链表不为空
-    Node<T>* n = this->head;
-    while (NULL != n) {
-        cout << n->value << "--"<<n->address;
-        cout << endl;
-        n = n->next;
-    }
-    cout << '\n';
-}
-template<typename T>
-T SingleLinkedList<T>::get(int index) {
-    return node(index)->address;
-}
-template<typename T>
-bool SingleLinkedList<T>::remove(int index) {
-    checkIndex(index);
-
-    if (index == 0) {
-        Node<T>* nHead = this->head;
-        Node<T>* nHead_next = nHead->next;
-
-        this->head = nHead_next;
-    }
-    else if (index == size) {
-        Node<T>* nIndex_pre = node(index - 1);
-        nIndex_pre->next = NULL;
-    }
-    else {//删除的是中间节点
-        Node<T>* nPre = node(index - 1);
-        Node<T>* nNext = node(index + 1);
-        nPre->next = nNext;
-    }
-    size--;
-    return true;
-}
-template<typename T>
-void SingleLinkedList<T>::freeList() {
-
-    Node<T>* n1 = this->head, * n2;
-    while (NULL != n1) {
-        n2 = n1->next;
-        delete n1;
-        n1 = n2;
-    }
-}
-
-
-
-
-
-    int main(){
-        
-        SingleLinkedList<string> list;
-        list.append(*gendata(1), "1");
-        list.append(*gendata(1), "1");
-        list.append(*gendata(1), "2");
-        list.append(*gendata(1), "3");
-        list.append(*gendata(1), "0");
-        list.print();
-        cout << list.length() << endl;
-       
-
+int main(int argc, char** argv){
+    if (argc <= 4){
+        printf("Usage: ./cache $IP1 $PORT1 $IP2 $PORT2\n");
         return 0;
-
     }
+    
+    char* ip1 = argv[1];
+    int port1 = atoi(argv[2]);
+    // char* ip2 = argv[3];
+    // int port2 = atoi(argv[4]);
+    Client client(ip1, port1);
+    return 0;
+}
+
+
+
+
+
+// int main(){
+    
+//     SingleLinkedList<string> list;
+//     list.append(*gendata(1), "1");
+//     list.append(*gendata(1), "1");
+//     list.append(*gendata(1), "2");
+//     list.append(*gendata(1), "3");
+//     list.append(*gendata(1), "0");
+//     list.print();
+//     cout << list.length() << endl;
+    
+
+//     return 0;
+
+// }

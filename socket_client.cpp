@@ -1,6 +1,6 @@
 #include "socket_client.h"
 
-bool SocketClient::connect_and_send(const char* ip, int port, const char* sendline){
+bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendline){
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         printf("create socket error: %s(errno: %d)\n", strerror(errno),errno);
         return false;
@@ -32,16 +32,16 @@ bool SocketClient::connect_and_send(const char* ip, int port, const char* sendli
     return true;
 }
 
-bool SocketClient::send_stdin(const char* ip, int port){
-    send_to_port(ip, port, "Hi");
+bool SocketClient::_send_stdin(const char* ip, int port){
+    send_line(ip, port, "Hi");
     while (fgets(sendline, 4096, stdin)){
-        send_to_port(ip, port, sendline);
+        send_line(ip, port, sendline);
     }
     return true;
 }
 
-char* SocketClient::send_to_port(const char* ip, int port, const char* sendline){
-    if (connect_and_send(ip, port, sendline)){
+char* SocketClient::send_line(const char* ip, int port, const char* sendline){
+    if (_connect_and_send(ip, port, sendline)){
         return recvline;
     }
     return nullptr;
@@ -49,6 +49,6 @@ char* SocketClient::send_to_port(const char* ip, int port, const char* sendline)
 
 int main(int argc, char** argv){
     SocketClient client;
-    client.send_stdin("127.0.0.1", 6666);
+    //client.send_stdin("127.0.0.1", 6666);
     return 0;
 }
