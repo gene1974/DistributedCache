@@ -7,7 +7,7 @@
 LRU_Cache::LRU_Cache(int size) : m_capacity(size), pHead(nullptr), pTail(nullptr) {}
 
 LRU_Cache::~LRU_Cache() {
-    map<string, ListNode*>::iterator it = mp.begin();
+    std::map<std::string, ListNode*>::iterator it = mp.begin();
     for (; it != mp.end();)
     {
         delete it->second;
@@ -64,9 +64,9 @@ void LRU_Cache::SetHead(ListNode* pNode)
     }
 }
 
-void LRU_Cache::Insert(string key, int value)
+void LRU_Cache::Insert(std::string key, int value)
 {
-    map<string, ListNode*>::iterator it = mp.find(key);//如果新key等于旧key，则更新value
+    std::map<std::string, ListNode*>::iterator it = mp.find(key);//如果新key等于旧key，则更新value
     if (it != mp.end())
     {
         ListNode* Node = it->second;
@@ -79,13 +79,13 @@ void LRU_Cache::Insert(string key, int value)
         ListNode* NewNode = new ListNode(key, value);
         if (mp.size() >= m_capacity)
         {
-            cout << endl << "警告：已经超出最大容量:" << m_capacity << "个数据" << endl;
-            string x = pTail->l_key;
-            map<string, ListNode*>::iterator it = mp.find(x);
+            std::cout << std::endl << "警告：已经超出最大容量:" << m_capacity << "个数据" << std::endl;
+            std::string x = pTail->l_key;
+            std::map<std::string, ListNode*>::iterator it = mp.find(x);
             Remove(pTail); //移除表尾指针内存
             int y = it->second->l_value;
             delete it->second;//删除value
-            cout << endl << "为您移除key为" << x << ",value为" << y << "的节点" << endl;
+            std::cout << std::endl << "为您移除key为" << x << ",value为" << y << "的节点" << std::endl;
             mp.erase(it);
         }
         SetHead(NewNode);//放到头部
@@ -93,9 +93,9 @@ void LRU_Cache::Insert(string key, int value)
     }
 }
 
-int LRU_Cache::Get(string key)//调用get就会更新数据，转移至开头
+int LRU_Cache::Get(std::string key)//调用get就会更新数据，转移至开头
 {
-    map<string, ListNode*>::iterator it = mp.find(key);
+    std::map<std::string, ListNode*>::iterator it = mp.find(key);
     if (it != mp.end())
     {
         ListNode* Node = it->second;
@@ -117,13 +117,13 @@ int LRU_Cache::GetSize()
 void LRU_Cache::show() {
     int i = 0;
     int n = mp.size();
-    if (n == 0) cout << "empty task" << endl;
+    if (n == 0) std::cout << "empty task" << std::endl;
     else {
-        map<string, ListNode*>::iterator it = mp.begin();
-        cout << "当前一共有" << n << "个数据: " << endl;
+        std::map<std::string, ListNode*>::iterator it = mp.begin();
+        std::cout << "当前一共有" << n << "个数据: " << std::endl;
         for (; it != mp.end(); ++it)
         {
-            cout << "key值为:" << it->first << ",value值为: " << it->second->l_value << endl;
+            std::cout << "key值为:" << it->first << ",value值为: " << it->second->l_value << std::endl;
             i++;
         }
     }
@@ -132,28 +132,28 @@ void LRU_Cache::show() {
 void LRU_Cache::reset_size(int size_num)
 {
     if (size_num > m_capacity) {
-        cout << "执行扩容操作：" << endl;
+        std::cout << "执行扩容操作：" << std::endl;
         m_capacity = size_num;
-        cout << "容量大小变为" << m_capacity << endl;
+        std::cout << "容量大小变为" << m_capacity << std::endl;
     }
     else if (size_num < m_capacity)
     {
         int n = m_capacity - size_num;
         while (n > 0)
         {
-            string x = pTail->l_key;
-            map<string, ListNode*>::iterator it = mp.find(x);
+            std::string x = pTail->l_key;
+            std::map<std::string, ListNode*>::iterator it = mp.find(x);
             Remove(pTail); //移除表尾指针内存
             int y = it->second->l_value;
             delete it->second;//删除value
             m_capacity--;
-            cout << endl << "为您移除key为" << x << ",value为" << y << "的节点" << "并缩容到" << m_capacity << endl;
+            std::cout << std::endl << "为您移除key为" << x << ",value为" << y << "的节点" << "并缩容到" << m_capacity << std::endl;
             mp.erase(it);
             n--;
         }
 
     }
     else {
-        cout << "容量大小未发生变化" << endl;
+        std::cout << "容量大小未发生变化" << std::endl;
     }
 }

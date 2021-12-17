@@ -17,7 +17,7 @@ void check_cache(Master* master);
 
 class Master{
 public:
-    Master(const char* ip, int port1, int port2, const char* client_ip, int client_port, unsigned interval);
+    Master(const char* ip, int port1, int port2, const char* client_ip, int client_port, size_t cache_size, time_t interval);
     ~Master();
     void run_master();
     friend void listen_to_client(Master* master);
@@ -35,13 +35,12 @@ private:
     
     char* _client_ip;
     int _client_port;
-    // std::vector<char*> _server_ip;
-    // std::vector<int> _server_port;
+    
     SocketClient _client_to_cache;
     SocketClient _client_to_client;
 
+    size_t _cache_size;
     time_t _interval;
-    size_t cache_size;
     std::mutex _lock_hash;
     std::mutex _lock_heart;
     consistent_hash _hash;

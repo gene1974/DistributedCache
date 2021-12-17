@@ -51,7 +51,7 @@ public:
 
     unsigned int find_nearest_node(unsigned int hash_value);
 
-    unsigned int put(string data_id);
+    std::string put(string data_id);
 
     void add_real_node(string ip, unsigned int virtual_node_num);
 
@@ -60,6 +60,8 @@ public:
     void print_real_node(string ip);
 
     void print();
+
+    int get_node_num();
 };
 
 #endif //LEETCODE_MY_HASH_H

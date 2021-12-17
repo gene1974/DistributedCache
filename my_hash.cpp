@@ -191,7 +191,7 @@ void consistent_hash::print() {
 }
 
 
-unsigned int consistent_hash::put(string data_id) {
+std::string consistent_hash::put(string data_id) {
     unsigned int data_hash = my_getMurMurHash(data_id.c_str(), HASH_LEN);
     unsigned int id = this->find_nearest_node(data_hash);
     unsigned int put_on_virnode_hash = this->sorted_node_hash_list[id];
@@ -199,7 +199,9 @@ unsigned int consistent_hash::put(string data_id) {
     cout << "data:\t" << data_id << "(" << data_hash << ")\twas put on virtual node:"
          << this->virtual_node_map[put_on_virnode_hash].ip << "(" << put_on_virnode_hash << ")"
          << endl;
-    return 0;
+    string vir_ip = this->virtual_node_map[put_on_virnode_hash].ip;
+    size_t pos = vir_ip.find_last_of(':');
+    return vir_ip.substr(0, pos);
 }
 
 void consistent_hash::drop_real_node(string ip) {
@@ -251,3 +253,6 @@ void consistent_hash::drop_real_node(string ip) {
     cout << "[drop_real_node finished]\t" << ip << endl << endl;
 }
 
+int consistent_hash::get_node_num(){
+    return real_node_sum;
+}

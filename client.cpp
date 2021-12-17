@@ -65,6 +65,13 @@ std::string Client::get_distribution(std::string key){
         cache_string = request_master(key); // request master
         _local_hash[key] = cache_string; // update local list
     }
+    
+    std::cout << "Local hash: " << std::endl;
+    for(auto iter = _local_hash.begin(); iter != _local_hash.end(); iter++){
+        std::cout << iter->first << '\t' << iter->second << std::endl;
+    }
+    std::cout << std::endl;
+    
     _hash_lock.unlock();
     return cache_string;
 }

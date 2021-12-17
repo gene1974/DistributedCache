@@ -73,7 +73,7 @@ char* SocketServer::listen_without_close(){
     return buff;
 }
 
-bool SocketServer::response_and_close(char* sendline){
+bool SocketServer::response_and_close(const char* sendline){
     printf("send msg to client: %s\n", sendline);
     if( send(connfd, sendline, strlen(sendline), 0) < 0){
         printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);

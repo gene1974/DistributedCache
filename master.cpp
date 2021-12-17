@@ -1,6 +1,6 @@
 #include "master.h"
 
-Master::Master(const char* ip, int port1, int port2, const char* client_ip, int client_port, unsigned interval = 60){
+Master::Master(const char* ip, int port1, int port2, const char* client_ip, int client_port, size_t cache_size = 60, time_t interval = 60){
     _ip = new char[20];
     _client_ip = new char[20];
 
@@ -9,6 +9,7 @@ Master::Master(const char* ip, int port1, int port2, const char* client_ip, int 
     _port_to_client = port1;
     _port_to_cache = port2;
     _client_port = client_port;
+    _cache_size = cache_size;
     _interval = interval;
 }
 
@@ -30,14 +31,13 @@ void Master::run_master(){
 void listen_to_client(Master* master){
     SocketServer server_to_client(master->_ip, master->_port_to_client);
     char* recvline = nullptr;
+    std::string sendline;
     while(true){
         recvline = server_to_client.listen_without_close();
         master->_lock_hash.lock();
-        master->_hash.put(recvline);
-        // TODO: get sendline from _hash
+        sendline = master->_hash.put(recvline);
         master->_lock_hash.unlock();
-        char* sendline = recvline;
-        server_to_client.response_and_close(sendline);
+        server_to_client.response_and_close(sendline.c_str());
     }
 }
 
@@ -102,12 +102,20 @@ void Master::remove_cache(std::string bad_cache){
 }
 
 void Master::reset_cache(){
+    char sendline[255];
+    int cache_num = 0;
+    int new_cache_size = 0;
+
     _lock_hash.lock();
-    // TODO: 不从_last_time遍历
-    for(auto iter = _last_time.begin(); iter != _last_time.end(); iter++){
-        char sendline[255];
-        // TODO: number
-        sprintf(sendline, "%d", 20);
+    cache_num =  _hash.get_node_num();
+    if (cache_num == 0){
+        std::cout << "All caches are broken!" << std::endl;
+        _lock_hash.unlock();
+        return;
+    }
+    new_cache_size = (int)(_cache_size / cache_num);
+    sprintf(sendline, "%d", new_cache_size);
+    for(auto iter = _hash.real_node_map.begin(); iter != _hash.real_node_map.end(); iter++){
         _client_to_cache.send_line(iter->first, sendline);
     }
     _lock_hash.unlock();

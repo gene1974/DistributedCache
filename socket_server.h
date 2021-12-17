@@ -21,7 +21,7 @@ public:
     bool listen_to_port(char* (*function)(char*));
 
     char* listen_without_close();
-    bool response_and_close(char* sendline);
+    bool response_and_close(const char* sendline);
 
 private:
     char* _ip;

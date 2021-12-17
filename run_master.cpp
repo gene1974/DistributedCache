@@ -16,11 +16,15 @@ int main(int argc, char** argv){
     int port2 = atoi(argv[3]);
     char* client_ip = argv[4];
     int client_port = atoi(argv[5]);
+    int cache_size = 60;
     int interval = 60;
     if (argc > 6){
-        interval = atoi(argv[6]);
+        cache_size = atoi(argv[6]);
     }
-    Master master(ip, port1, port2, client_ip, client_port, interval);
+    if (argc > 7){
+        interval = atoi(argv[7]);
+    }
+    Master master(ip, port1, port2, client_ip, client_port, cache_size, interval);
     master.run_master();
     return 0;
 }
