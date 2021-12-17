@@ -48,16 +48,16 @@ void listen_heart(Master* master){
     std::string ip;
     while(1){
         recvline = server_heart.listen_once();
-        ip = recvline; // "ip:port"
+        ip = recvline;
         
         master->_lock_hash.lock();
-        if (master->_last_time.count(ip) == 0){
+        if (master->_hash.real_node_map.count(ip) == 0){
             master->_hash.add_real_node(ip, 300);
         }
         master->_lock_hash.unlock();
 
         master->_lock_heart.lock();
-        master->_last_time[recvline] = time(NULL);
+        master->_last_time[ip] = time(NULL);
         master->_lock_heart.unlock();
     }
 }
@@ -92,8 +92,15 @@ void Master::check_heartpoint(){
 
     if (need_reset){
         reset_cache();
-        _client_to_client.send_line(_client_ip, _client_port, "clear");
+        char* sendline = "clear";
+        _client_to_client.send_line(_client_ip, _client_port, sendline);
     }
+
+    std::cout << "[CHECK]Current caches:" << std::endl;
+    for(auto iter = _hash.real_node_map.begin(); iter != _hash.real_node_map.end(); iter++){
+        std::cout << iter->first << std::endl;
+    }
+    std::cout << std::endl;
 }
 
 void Master::remove_cache(std::string bad_cache){

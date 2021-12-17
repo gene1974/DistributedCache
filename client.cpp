@@ -101,6 +101,7 @@ void Client::run_client(){
     std::pair<std::string, int> cache;
     std::pair<std::string, int> data;
     std::string sendline;
+    //int key;
     sleep(10); // wait master and cache setup
     while(true){
         data = gendata();
@@ -115,6 +116,11 @@ void Client::run_client(){
         }
         request_cache(cache.first.c_str(), cache.second, sendline);
         sleep(_interval);
+        // sendline[0] = 'r';
+        // request_cache(cache.first.c_str(), cache.second, sendline);
+        // sleep(_interval);
+        //_is_write = !_is_write;
+
     }
     thread_listen_to_master.join();
 }
@@ -124,6 +130,7 @@ void listen_to_master(Client* client){
     while(true){
         char* recvline = server_to_master.listen_once();
         if(strcmp(recvline, "clear") == 0) {
+            std::cout << "[CLEAR] Clear local hash." << std::endl;
             client->clear_local();
         }
     }

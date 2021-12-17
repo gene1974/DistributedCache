@@ -153,7 +153,7 @@ void consistent_hash::add_real_node(std::string ip, unsigned int virtual_node_nu
         
         node->virtual_node_hash_list.push_back(tmp_hash);
         
-        //cout << "2" << endl;
+        //std::cout << "2" << std::endl;
     }
     
     node->cur_max_port = cur_port;

@@ -30,7 +30,7 @@ private:
     char* _ip;
     int _port_to_client;
     int _port_to_master;
-    char* _ip_port; // "ip:port"
+    char* _ip_port; // "ip:port_to_client,ip:port_to_master"
     
     char* _master_ip;
     int _master_port;

@@ -17,7 +17,7 @@ bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendl
         printf("connect error: %s(errno: %d)\n",strerror(errno),errno);
         return false;
     }
-    printf("send msg to client: %s\n", sendline);
+    printf("[client] send msg: %s\n", sendline);
     if (send(sockfd, sendline, strlen(sendline), 0) < 0){
         printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
         return false;
@@ -25,7 +25,7 @@ bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendl
 
     n = recv(sockfd, recvline, 4096, 0);
     recvline[n] = '\0';
-    printf("recv msg from client: %s\n", recvline);
+    printf("[client] recv msg: %s\n", recvline);
 
     close(sockfd);
     return true;

@@ -1,9 +1,8 @@
 #include "cache.h"
 
 Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size = 5, int interval = 20){
-    // std::cout << ip << ' ' << port1 << ' '  << port2 << ' '  << master_ip << ' '  << master_port << std::endl;
     _ip = new char[20];
-    _ip_port = new char[24];
+    _ip_port = new char[48];
     _master_ip = new char[20];
     _buff = new char[MAXLEN];
 
@@ -29,10 +28,10 @@ Cache::~Cache(){
 
 void Cache::run_cache(){
     std::thread _thread_listen_to_client(listen_to_client, this);
-    std::thread _thread_listen_to_master(listen_to_master, this);
+    //std::thread _thread_listen_to_master(listen_to_master, this);
     std::thread _thread_heart(heart, this);
     _thread_listen_to_client.join();
-    _thread_listen_to_master.join();
+    //_thread_listen_to_master.join();
     _thread_heart.join();
 }
 
@@ -84,27 +83,32 @@ int Cache::query_cache(char* line){
 
 // 线程1，接收 client 的查询写入请求
 void listen_to_client(Cache* cache){
-    std::cout << cache->_ip << ':' << cache->_port_to_client << std::endl;
     SocketServer server_to_client(cache->_ip, cache->_port_to_client);
     char* recvline = nullptr;
     int result;
     while(true){
         recvline = server_to_client.listen_without_close();
-        result = cache->query_cache(recvline);
-        sprintf(cache->_buff, "%d", result);
-        server_to_client.response_and_close(cache->_buff);
+        if( recvline[0] != 'r' && recvline[0] != 'w'){
+            cache->reset_cache(recvline);
+            server_to_client.response_and_close("Reset size success.");
+        }
+        else{
+            result = cache->query_cache(recvline);
+            sprintf(cache->_buff, "%d", result);
+            server_to_client.response_and_close(cache->_buff);
+        }
     }
 }
 
 // 线程2，接收 master 的扩容缩容请求
-void listen_to_master(Cache* cache){
-    SocketServer server_to_master(cache->_ip, cache->_port_to_master);
-    char* recvline = nullptr;
-    while(true){
-        recvline = server_to_master.listen_once();
-        cache->reset_cache(recvline);
-    }
-}
+// void listen_to_master(Cache* cache){
+//     SocketServer server_to_master(cache->_ip, cache->_port_to_master);
+//     char* recvline = nullptr;
+//     while(true){
+//         recvline = server_to_master.listen_once();
+//         cache->reset_cache(recvline);
+//     }
+// }
 
 // 线程3，汇报心跳，给 master 发送自己的 ip 和 port
 void heart(Cache* cache){

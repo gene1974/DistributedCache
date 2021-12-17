@@ -49,7 +49,7 @@ char* SocketServer::listen_once(){
         n--;
     }
     buff[n] = '\0';
-    printf("recv msg from client: %s\n", buff);
+    printf("[server] recv msg: %s\n", buff);
     close(connfd);
     return buff;
 }
@@ -70,7 +70,7 @@ char* SocketServer::listen_without_close(){
         n--;
     }
     buff[n] = '\0';
-    printf("recv msg from client: %s\n", buff);
+    printf("[server] recv msg: %s\n", buff);
     return buff;
 }
 
@@ -79,7 +79,7 @@ bool SocketServer::response_and_close(const char* sendline){
         printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
         return false;
     }
-    printf("send msg to client: %s\n", sendline);
+    printf("[server] send msg: %s\n", sendline);
     close(connfd);
     return true;
 }
