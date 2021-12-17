@@ -71,7 +71,7 @@ std::string Client::get_distribution(std::string key){
         std::cout << iter->first << '\t' << iter->second << std::endl;
     }
     std::cout << std::endl;
-    
+
     _hash_lock.unlock();
     return cache_string;
 }
@@ -91,7 +91,7 @@ void Client::clear_local(){
 }
 
 char* Client::request_cache(const char* ip, int port, std::string data){
-    auto recvline = _socket_client.send_line(_master_ip, _master_port, data.c_str());
+    auto recvline = _socket_client.send_line(ip, port, data.c_str());
     return recvline;
 }
 
@@ -101,6 +101,7 @@ void Client::run_client(){
     std::pair<std::string, int> cache;
     std::pair<std::string, int> data;
     std::string sendline;
+    sleep(10); // wait master and cache setup
     while(true){
         data = gendata();
         cache_string = get_distribution(data.first);

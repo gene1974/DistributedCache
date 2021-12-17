@@ -34,6 +34,7 @@ bool SocketServer::_init(const char* ip, int port){
 }
 
 char* SocketServer::listen_once(){
+    //printf("======waiting for client's request======\n");
     int n = 0;
     if( listen(listenfd, 10) == -1){
         printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);
@@ -47,11 +48,9 @@ char* SocketServer::listen_once(){
     while (buff[n - 1] == '\r' || buff[n - 1] == '\n'){
         n--;
     }
-    // std::cout << n << std::endl;
     buff[n] = '\0';
     printf("recv msg from client: %s\n", buff);
     close(connfd);
-    close(listenfd);
     return buff;
 }
 
@@ -61,6 +60,7 @@ char* SocketServer::listen_without_close(){
         printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);
         return nullptr;
     }
+    //printf("======waiting for client's request======\n");
     if( (connfd = accept(listenfd, (struct sockaddr*)NULL, NULL)) == -1){
         printf("accept socket error: %s(errno: %d)",strerror(errno),errno);
         return nullptr;
@@ -70,17 +70,17 @@ char* SocketServer::listen_without_close(){
         n--;
     }
     buff[n] = '\0';
+    printf("recv msg from client: %s\n", buff);
     return buff;
 }
 
 bool SocketServer::response_and_close(const char* sendline){
-    printf("send msg to client: %s\n", sendline);
     if( send(connfd, sendline, strlen(sendline), 0) < 0){
         printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
         return false;
     }
+    printf("send msg to client: %s\n", sendline);
     close(connfd);
-    close(listenfd);
     return true;
 }
 

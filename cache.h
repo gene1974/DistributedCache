@@ -16,7 +16,7 @@ void heart(Cache* cache);
 
 class Cache{
 public:
-    Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size);
+    Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size, int interval);
     ~Cache();
     void run_cache();
     friend void listen_to_client(Cache* cache);
@@ -40,6 +40,7 @@ private:
     char* _buff;
 
     int _size;
+    int _interval;
     std::mutex _cache_lock;
     LRU_Cache* _lruCache;
 };

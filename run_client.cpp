@@ -15,7 +15,7 @@ int main(int argc, char** argv){
     int port = atoi(argv[2]);
     char* master_ip = argv[3];
     int master_port = atoi(argv[4]);
-    int interval = 1;
+    int interval = 5;
     if (argc > 5){
         interval = atoi(argv[5]);
     }

@@ -27,6 +27,7 @@ public:
     void check_heartpoint();
     void remove_cache(std::string bad_cache);
     void reset_cache();
+    void add_cache(std::string cache_ip);
 
 private:
     char* _ip;

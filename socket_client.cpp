@@ -17,15 +17,13 @@ bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendl
         printf("connect error: %s(errno: %d)\n",strerror(errno),errno);
         return false;
     }
-    
+    printf("send msg to client: %s\n", sendline);
     if (send(sockfd, sendline, strlen(sendline), 0) < 0){
         printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
         return false;
     }
 
-    // char buff[4096];
     n = recv(sockfd, recvline, 4096, 0);
-    std::cout << n << std::endl;
     recvline[n] = '\0';
     printf("recv msg from client: %s\n", recvline);
 

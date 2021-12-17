@@ -25,6 +25,7 @@ int main(int argc, char** argv){
         interval = atoi(argv[7]);
     }
     Master master(ip, port1, port2, client_ip, client_port, cache_size, interval);
+    //master.add_cache("192.168.127.136");
     master.run_master();
     return 0;
 }

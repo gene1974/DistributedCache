@@ -1,12 +1,14 @@
 #include "cache.h"
 
-Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size = 5){
+Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size = 5, int interval = 20){
+    // std::cout << ip << ' ' << port1 << ' '  << port2 << ' '  << master_ip << ' '  << master_port << std::endl;
     _ip = new char[20];
     _ip_port = new char[24];
     _master_ip = new char[20];
     _buff = new char[MAXLEN];
 
     _size = size;
+    _interval = interval;
     _lruCache = new LRU_Cache(size);
     strcpy(_ip, ip);
     strcpy(_master_ip, master_ip);
@@ -16,7 +18,7 @@ Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int ma
     
     strcpy(_ip_port, ip);
     strcat(_ip_port, ":");
-    sprintf(_ip_port + strlen(_ip_port), "%d", port2);
+    sprintf(_ip_port + strlen(_ip_port), "%d", _port_to_client);
 }
 
 Cache::~Cache(){
@@ -56,11 +58,15 @@ int Cache::query_cache(char* line){
             std::stringstream ss(str_value);
             ss >> value;
             _lruCache->Insert(key, value);
+            std::cout << "Insert (key, value) = {" << key << ',' << value << ')' << std::endl;
+            std::cout << "Recent cache:" << std::endl;
+            _lruCache->show();
         }
             break;
         case 'r': {
             std::string key = recvline.substr(1, 9);
             result = _lruCache->Get(key);
+            std::cout << "Get (key, value) = {" << key << ',' << result << ')' << std::endl;
         }
             break;
         case 's': {
@@ -78,6 +84,7 @@ int Cache::query_cache(char* line){
 
 // 线程1，接收 client 的查询写入请求
 void listen_to_client(Cache* cache){
+    std::cout << cache->_ip << ':' << cache->_port_to_client << std::endl;
     SocketServer server_to_client(cache->_ip, cache->_port_to_client);
     char* recvline = nullptr;
     int result;
@@ -101,5 +108,9 @@ void listen_to_master(Cache* cache){
 
 // 线程3，汇报心跳，给 master 发送自己的 ip 和 port
 void heart(Cache* cache){
-    cache->_client_to_master.send_line(cache->_master_ip, cache->_master_port, cache->_ip_port);
+    while(true){
+        // TODO: 发送失败
+        cache->_client_to_master.send_line(cache->_master_ip, cache->_master_port, cache->_ip_port);
+        std::this_thread::sleep_for(std::chrono::seconds(cache->_interval));
+    }
 }

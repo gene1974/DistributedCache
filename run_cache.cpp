@@ -17,10 +17,14 @@ int main(int argc, char** argv){
     char* _master_ip = argv[4];
     int _master_port = atoi(argv[5]);
     int size = 5;
+    int interval = 20;
     if (argc > 6){
         size = atoi(argv[6]);
     }
-    Cache cache(ip, port1, port2, _master_ip, _master_port, size);
+    if (argc > 7){
+        interval = atoi(argv[7]);
+    }
+    Cache cache(ip, port1, port2, _master_ip, _master_port, size, interval);
     cache.run_cache();
     return 0;
 }

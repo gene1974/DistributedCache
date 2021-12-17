@@ -45,7 +45,7 @@ void listen_to_client(Master* master){
 void listen_heart(Master* master){
     SocketServer server_heart(master->_ip, master->_port_to_cache);
     char* recvline = nullptr;
-    string ip;
+    std::string ip;
     while(1){
         recvline = server_heart.listen_once();
         ip = recvline; // "ip:port"
@@ -85,6 +85,7 @@ void Master::check_heartpoint(){
             need_reset = true;
             remove_cache(bad_cache);
             _last_time.erase(bad_cache);
+            iter = _last_time.begin(); // 有删除则重新遍历
         }
     }
     _lock_heart.unlock();
@@ -118,5 +119,12 @@ void Master::reset_cache(){
     for(auto iter = _hash.real_node_map.begin(); iter != _hash.real_node_map.end(); iter++){
         _client_to_cache.send_line(iter->first, sendline);
     }
+    _lock_hash.unlock();
+}
+
+void Master::add_cache(std::string cache_ip){
+    _lock_hash.lock();
+    _hash.add_real_node(cache_ip, 300);
+    _hash.get_node_num();
     _lock_hash.unlock();
 }
