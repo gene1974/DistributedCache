@@ -44,7 +44,7 @@ Client::Client(const char* ip, int port, const char* master_ip, int master_port,
     
     strcpy(_ip, ip);
     strcpy(_master_ip, master_ip);
-    _port = port;
+    _port_to_master = port;
     _master_port = master_port;
     _interval = interval;
     _is_write = true;
@@ -107,7 +107,7 @@ void Client::run_client(){
 }
 
 void listen_to_master(Client* client){
-    SocketServer server_to_master(client->_ip, client->_port);
+    SocketServer server_to_master(client->_ip, client->_port_to_master);
     while(true){
         char* recvline = server_to_master.listen_once();
         if(strcmp(recvline, "clear") == 0) {

@@ -25,7 +25,8 @@ public:
     char* request_cache(const char* ip, int port, std::string data);
 private:
     char* _ip;
-    int _port;
+    int _port_to_master;
+    
     char* _master_ip;
     int _master_port;
     SocketClient _socket_client;

@@ -11,6 +11,15 @@ g++ run_client.cpp client.cpp socket_client.cpp socket_server.cpp Utils.cpp -lpt
 ./client ip port master_ip master_port [interval]
 ```
 
+#### master:
+```shell
+# compile
+g++ run_master.cpp master.cpp my_hash.cpp socket_client.cpp socket_server.cpp Utils.cpp -lpthread -o master
+
+#run
+./master ip port1 port2 client_ip client_port [interval]
+```
+
 ### 系统框架
 
 搭了一下系统框架，按照我的想法大概写了一下需要的线程和函数，具体内容后续完善。

@@ -53,7 +53,7 @@ public:
 
     unsigned int put(string data_id);
 
-    void add_real_node(string ip, unsigned int virtual_node_num = 300);
+    void add_real_node(string ip, unsigned int virtual_node_num);
 
     void drop_real_node(string ip);
 
