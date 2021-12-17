@@ -5,7 +5,9 @@
 
 int main(int argc, char** argv){
     if (argc <= 4){
-        printf("Usage: ./cache $IP1 $PORT1 $IP2 $PORT2\n");
+        printf("[ERROR] Too few arguements.\n");
+        printf("[GUIDE] Usage:\n");
+        printf("[GUIDE] \t./client ip port master_ip master_port [interval]\n");
         return 0;
     }
     

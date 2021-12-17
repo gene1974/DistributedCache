@@ -115,22 +115,3 @@ void listen_to_master(Client* client){
         }
     }
 }
-
-
-
-
-// int main(){
-    
-//     SingleLinkedList<string> list;
-//     list.append(*gendata(1), "1");
-//     list.append(*gendata(1), "1");
-//     list.append(*gendata(1), "2");
-//     list.append(*gendata(1), "3");
-//     list.append(*gendata(1), "0");
-//     list.print();
-//     cout << list.length() << endl;
-    
-
-//     return 0;
-
-// }
