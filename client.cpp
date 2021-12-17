@@ -37,7 +37,7 @@ std::pair<std::string, int>  gendata() {
     return make_pair(strRand(), keyRand());
 }
 
-Client::Client(const char* ip, int port, const char* master_ip, int master_port, time_t interval){
+Client::Client(const char* ip, int port, const char* master_ip, int master_port, time_t interval = 1){
     _ip = new char[20];
     _master_ip = new char[20];
     buff = new char[MAXLEN];
@@ -55,16 +55,16 @@ Client::~Client(){
     delete _master_ip;
 }
 
-std::pair<std::string, int> Client::request_master(std::string sendline){
+std::string Client::request_master(std::string sendline){
     char* recvline = _socket_client.send_line(_master_ip, _master_port, sendline.c_str());
     if (recvline != nullptr){
-        return convert_ip(recvline);
+        return recvline;
     }
-    return std::make_pair(nullptr, -1);
+    return "";
 }
 
-bool Client::write_local(std::string key, std::pair<std::string, int> cache){
-    _local_hash.insert(key, cache.first + std::to_string(cache.second));
+bool Client::write_local(std::string key, std::string cache_string){
+    _local_hash[key] = cache_string;
     return true;
 }
 
@@ -78,18 +78,19 @@ char* Client::request_cache(const char* ip, int port, std::string data){
 }
 
 void Client::run_client(){
-    std::thread thread_listen_to_master(listen_to_master);
+    std::thread thread_listen_to_master(listen_to_master, this);
+    std::string cache_string; // ip + port
     std::pair<std::string, int> cache;
     std::pair<std::string, int> data;
     std::string sendline;
     while(true){
         data = gendata();
         if (_local_hash.count(data.first) != 0) { // in local list
-            cache = _local_hash[data.first];
+            cache_string = _local_hash[data.first];
         }
         else {
-            cache = request_master(data.first); // request master
-            write_local(data.first, cache); // update local list
+            cache_string = request_master(data.first); // request master
+            write_local(data.first, cache_string); // update local list
         }
         
         if (_is_write) {
@@ -98,18 +99,19 @@ void Client::run_client(){
         else {
             sendline = 'r' + data.first + std::to_string(data.second);
         }
+        cache = convert_ip(cache_string);
         request_cache(cache.first.c_str(), cache.second, sendline);
         sleep(_interval);
     }
     thread_listen_to_master.join();
 }
 
-void Client::listen_to_master(){
-    SocketServer server_to_master(_ip, _port);
+void listen_to_master(Client* client){
+    SocketServer server_to_master(client->_ip, client->_port);
     while(true){
         char* recvline = server_to_master.listen_once();
         if(strcmp(recvline, "clear") == 0) {
-            clear_local();
+            client->clear_local();
         }
     }
 }

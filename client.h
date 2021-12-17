@@ -7,18 +7,20 @@
 #include "socket_server.h"
 #include "Utils.h"
 
-std::string strRand(int length = 8);
+class Client;
+std::string strRand(int length);
 int keyRand();
 std::pair<std::string, int>  gendata();
+void listen_to_master(Client* client);
 
 class Client{
 public:
     Client(const char* ip, int port, const char* master_ip, int master_port, time_t _interval);
     ~Client();
     void run_client();
-    void listen_to_master();
-    std::pair<std::string, int> request_master(std::string sendline);
-    bool write_local(std::string key, std::pair<std::string, int> cache);
+    friend void listen_to_master(Client* client);
+    std::string request_master(std::string sendline);
+    bool write_local(std::string key, std::string cache_string);
     void clear_local();
     char* request_cache(const char* ip, int port, std::string data);
 private:
@@ -31,7 +33,7 @@ private:
     const static int MAXLEN = 4096;
     char* buff;
 
-    std::map<std::string, std::pair<std::string, int> > _local_hash;
+    std::map<std::string, std::string> _local_hash;
     bool _is_write = true;
     time_t _interval;
 };

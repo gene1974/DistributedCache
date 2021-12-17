@@ -8,6 +8,10 @@ SocketServer::SocketServer(const char* ip, int port){
     _init(ip, port);
 }
 
+SocketServer::~SocketServer(){
+    delete _ip;
+}
+
 bool SocketServer::_init(const char* ip, int port){
     if( (listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ){
         printf("create socket error: %s(errno: %d)\n",strerror(errno),errno);
@@ -118,10 +122,4 @@ char* fun(char* a){
     strcpy(b, a);
     strcpy(b + len, a);
     return b;
-}
-
-int main(int argc, char** argv){
-    SocketServer socker_server("127.0.0.1", 6666);
-    socker_server.listen_to_port(fun);
-    return 0;
 }
