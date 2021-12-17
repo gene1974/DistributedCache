@@ -48,19 +48,18 @@ int Cache::query_cache(char* line){
     switch (recvline[0])
     {
         case 'w': {
-            std::string key = recvline.substr(1, 9);
+            std::string key = recvline.substr(1, 8);
             std::string str_value = recvline.substr(9);
             int value;
             std::stringstream ss(str_value);
             ss >> value;
             _lruCache->Insert(key, value);
             std::cout << "[Cache] " << "Insert: " << key << '\t' << value << std::endl;
-            std::cout << "[Cache] " << "Recent cache:" << std::endl;
             _lruCache->show();
         }
             break;
         case 'r': {
-            std::string key = recvline.substr(1, 9);
+            std::string key = recvline.substr(1, 8);
             result = _lruCache->Get(key);
             std::cout << "[Cache] " << "Get: " << key << '\t' << result << std::endl;
         }

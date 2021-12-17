@@ -101,7 +101,7 @@ void Client::run_client(){
     std::pair<std::string, int> cache;
     std::pair<std::string, int> data;
     std::string sendline;
-    //int key;
+    int cnt;
     sleep(10); // wait master and cache setup
     while(true){
         data = gendata();
@@ -116,11 +116,13 @@ void Client::run_client(){
         }
         request_cache(cache.first.c_str(), cache.second, sendline);
         sleep(_interval);
-        // sendline[0] = 'r';
-        // request_cache(cache.first.c_str(), cache.second, sendline);
-        // sleep(_interval);
-        //_is_write = !_is_write;
-
+        cnt++;
+        if(cnt == 3) {
+            sendline = 'r' + data.first;
+            request_cache(cache.first.c_str(), cache.second, sendline);
+            cnt = 0;
+            sleep(_interval);
+        }
     }
     thread_listen_to_master.join();
 }

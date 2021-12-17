@@ -71,7 +71,7 @@ void LRU_Cache::Insert(std::string key, int value)
     {
         ListNode* Node = it->second;
         Node->l_value = value;
-        Remove(Node);
+        //Remove(Node);
         SetHead(Node);
     }
     else
@@ -99,8 +99,8 @@ int LRU_Cache::Get(std::string key)//调用get就会更新数据，转移至开�
     if (it != mp.end())
     {
         ListNode* Node = it->second;
-        Remove(Node);
-        SetHead(Node);
+        //Remove(Node);
+        //SetHead(Node);
         return Node->l_value;
     }
     else
