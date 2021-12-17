@@ -66,7 +66,7 @@ std::string Client::get_distribution(std::string key){
         _local_hash[key] = cache_string; // update local list
     }
     
-    std::cout << "Local hash: " << std::endl;
+    std::cout << "[Client] Local hash: " << std::endl;
     for(auto iter = _local_hash.begin(); iter != _local_hash.end(); iter++){
         std::cout << iter->first << '\t' << iter->second << std::endl;
     }
@@ -130,7 +130,7 @@ void listen_to_master(Client* client){
     while(true){
         char* recvline = server_to_master.listen_once();
         if(strcmp(recvline, "clear") == 0) {
-            std::cout << "[CLEAR] Clear local hash." << std::endl;
+            std::cout << "[Client] Clear local hash." << std::endl;
             client->clear_local();
         }
     }

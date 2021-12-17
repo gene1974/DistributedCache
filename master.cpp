@@ -92,11 +92,10 @@ void Master::check_heartpoint(){
 
     if (need_reset){
         reset_cache();
-        char* sendline = "clear";
-        _client_to_client.send_line(_client_ip, _client_port, sendline);
+        _client_to_client.send_line(_client_ip, _client_port, "clear");
     }
 
-    std::cout << "[CHECK]Current caches:" << std::endl;
+    std::cout << "[Master] Current caches:" << std::endl;
     for(auto iter = _hash.real_node_map.begin(); iter != _hash.real_node_map.end(); iter++){
         std::cout << iter->first << std::endl;
     }
@@ -117,7 +116,7 @@ void Master::reset_cache(){
     _lock_hash.lock();
     cache_num =  _hash.get_node_num();
     if (cache_num == 0){
-        std::cout << "All caches are broken!" << std::endl;
+        std::cout << "[Master] " << "All caches are broken!" << std::endl;
         _lock_hash.unlock();
         return;
     }

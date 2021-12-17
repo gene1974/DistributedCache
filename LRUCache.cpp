@@ -79,13 +79,13 @@ void LRU_Cache::Insert(std::string key, int value)
         ListNode* NewNode = new ListNode(key, value);
         if (mp.size() >= m_capacity)
         {
-            std::cout << std::endl << "警告：已经超出最大容量:" << m_capacity << "个数据" << std::endl;
+            std::cout << std::endl << "[Cache] "  << "警告：已经超出最大容量:" << m_capacity << "个数据" << std::endl;
             std::string x = pTail->l_key;
             std::map<std::string, ListNode*>::iterator it = mp.find(x);
             Remove(pTail); //移除表尾指针内存
             int y = it->second->l_value;
             delete it->second;//删除value
-            std::cout << std::endl << "为您移除key为" << x << ",value为" << y << "的节点" << std::endl;
+            std::cout << "[Cache] "  << "为您移除key为" << x << ",value为" << y << "的节点" << std::endl << std::endl;
             mp.erase(it);
         }
         SetHead(NewNode);//放到头部
@@ -120,21 +120,22 @@ void LRU_Cache::show() {
     if (n == 0) std::cout << "empty task" << std::endl;
     else {
         std::map<std::string, ListNode*>::iterator it = mp.begin();
-        std::cout << "当前一共有" << n << "个数据: " << std::endl;
+        std::cout << "[Cache] "  << "当前一共有" << n << "个数据: " << std::endl;
         for (; it != mp.end(); ++it)
         {
             std::cout << "key值为:" << it->first << ",value值为: " << it->second->l_value << std::endl;
             i++;
         }
+        std::cout << std::endl;
     }
 }
 
 void LRU_Cache::reset_size(int size_num)
 {
     if (size_num > m_capacity) {
-        std::cout << "执行扩容操作：" << std::endl;
+        std::cout << "[Cache] "  << "执行扩容操作：" << std::endl;
         m_capacity = size_num;
-        std::cout << "容量大小变为" << m_capacity << std::endl;
+        std::cout << "[Cache] "  << "容量大小变为" << m_capacity << std::endl;
     }
     else if (size_num < m_capacity)
     {

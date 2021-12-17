@@ -100,7 +100,7 @@ unsigned int consistent_hash::find_nearest_node(unsigned int hash_value) {
 }
 
 void consistent_hash::add_real_node(std::string ip, unsigned int virtual_node_num = 300) {
-    std::cout << "[add_real_node]\t" << ip << std::endl;
+    std::cout << "[Master] " << "[add_real_node]\t" << ip << std::endl;
     real_node *node;
    
     if (this->real_node_map.find(ip) != this->real_node_map.end()) {
@@ -161,7 +161,7 @@ void consistent_hash::add_real_node(std::string ip, unsigned int virtual_node_nu
     this->real_node_map[ip] = *node;
 
     this->virtual_node_sum += virtual_node_num;
-    std::cout << "[add_real_node finished]\t" << ip << std::endl << std::endl;
+    std::cout << "[Master] " << "[add_real_node finished]\t" << ip << std::endl;
 }
 
 
@@ -196,16 +196,16 @@ std::string consistent_hash::put(std::string data_id) {
     unsigned int id = this->find_nearest_node(data_hash);
     unsigned int put_on_virnode_hash = this->sorted_node_hash_list[id];
     this->virtual_node_map[put_on_virnode_hash].data.insert(make_pair(data_hash, data_id));
-    std::cout << "data:\t" << data_id << "(" << data_hash << ")\twas put on virtual node:"
+    std::cout << "[Master] " << "data:\t" << data_id << "(" << data_hash << ")\twas put on virtual node:"
          << this->virtual_node_map[put_on_virnode_hash].ip << "(" << put_on_virnode_hash << ")"
-         << std::endl << std::endl;
+         << std::endl;
     std::string vir_ip = this->virtual_node_map[put_on_virnode_hash].ip;
     size_t pos = vir_ip.find_last_of(':');
     return vir_ip.substr(0, pos);
 }
 
 void consistent_hash::drop_real_node(std::string ip) {
-    std::cout << "[drop_real_node]\t" << ip << std::endl;
+    std::cout << "[Master] " << "[drop_real_node]\t" << ip << std::endl;
     std::vector<unsigned int> *virtual_hash_list_p = &this->real_node_map[ip].virtual_node_hash_list;
     std::sort(virtual_hash_list_p->begin(), virtual_hash_list_p->end());
     unsigned int next_id;
@@ -231,7 +231,7 @@ void consistent_hash::drop_real_node(std::string ip) {
             std::map<unsigned int, std::string> *moveto = &(this->virtual_node_map[next_hash].data);
             for (auto &data : this->virtual_node_map[cur_hash].data) {
                 (*moveto)[data.first] = data.second;
-                std::cout << "[move data]\t" << data.second << "\tfrom node:\t" << this->virtual_node_map[cur_hash].ip << "("
+                std::cout << "[Master] " << "[move data]\t" << data.second << "\tfrom node:\t" << this->virtual_node_map[cur_hash].ip << "("
                      << cur_hash << ")" << "\tto\t"
                      << this->virtual_node_map[next_hash].ip << "(" << next_hash << ")" << std::endl;
             }
@@ -250,7 +250,7 @@ void consistent_hash::drop_real_node(std::string ip) {
     this->real_node_map[ip].virtual_node_hash_list.clear();
     this->real_node_map.erase(ip);
     this->real_node_sum--;
-    std::cout << "[drop_real_node finished]\t" << ip << std::endl << std::endl;
+    std::cout << "[Master] " << "[drop_real_node finished]\t" << ip << std::endl << std::endl;
 }
 
 int consistent_hash::get_node_num(){

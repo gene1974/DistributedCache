@@ -16,7 +16,7 @@ void heart(Cache* cache);
 
 class Cache{
 public:
-    Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size, int interval);
+    Cache(const char* ip, int port, const char* master_ip, int master_port, int size, int interval);
     ~Cache();
     void run_cache();
     friend void listen_to_client(Cache* cache);
@@ -29,8 +29,7 @@ public:
 private:
     char* _ip;
     int _port_to_client;
-    int _port_to_master;
-    char* _ip_port; // "ip:port_to_client,ip:port_to_master"
+    char* _ip_port; // "ip:port"
     
     char* _master_ip;
     int _master_port;

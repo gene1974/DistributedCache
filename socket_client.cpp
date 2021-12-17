@@ -3,21 +3,21 @@
 
 bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendline){
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-        printf("create socket error: %s(errno: %d)\n", strerror(errno),errno);
+        printf("[socket] create socket error: %s(errno: %d)\n", strerror(errno),errno);
         return false;
     }
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(port);
     if (inet_pton(AF_INET, ip, &servaddr.sin_addr) <= 0){
-        printf("inet_pton error for %s\n", ip);
+        printf("[socket] inet_pton error for %s\n", ip);
         return false;
     }
     if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
-        printf("connect error: %s(errno: %d)\n",strerror(errno),errno);
+        printf("[socket] connect error: %s(errno: %d)\n",strerror(errno),errno);
         return false;
     }
-    printf("[client] send msg: %s\n", sendline);
+    printf("[socket] send msg: %s\n", sendline);
     if (send(sockfd, sendline, strlen(sendline), 0) < 0){
         printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
         return false;
@@ -25,7 +25,7 @@ bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendl
 
     n = recv(sockfd, recvline, 4096, 0);
     recvline[n] = '\0';
-    printf("[client] recv msg: %s\n", recvline);
+    printf("[socket] recv msg: %s\n", recvline);
 
     close(sockfd);
     return true;
