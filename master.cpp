@@ -29,10 +29,11 @@ void Master::run_master(){
 // 线程1，接收 client 的查询分布请求
 void listen_to_client(Master* master){
     SocketServer server_to_client(master->_ip, master->_port_to_client);
+    char* recvline = nullptr;
     while(true){
-        char* recvline = server_to_client.listen_without_close();
+        recvline = server_to_client.listen_without_close();
         master->_hash.put(recvline);
-        // TODO: sendline
+        // TODO: get sendline from _hash
         char* sendline = recvline;
         server_to_client.response_and_close(sendline);
     }
@@ -41,9 +42,11 @@ void listen_to_client(Master* master){
 // 线程2，接收 cache 的心跳信息
 void listen_heart(Master* master){
     SocketServer server_heart(master->_ip, master->_port_to_cache);
+    char* recvline = nullptr;
+    string ip;
     while(1){
-        char* recvline = server_heart.listen_once();
-        string ip = recvline;
+        recvline = server_heart.listen_once();
+        ip = recvline; // "ip:port"
         if (master->_last_time.count(ip) == 0){
             master->_hash.add_real_node(ip, 300);
         }

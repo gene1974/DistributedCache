@@ -4,8 +4,9 @@
 #include  <string>
 #include "cache.h"
 
-Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size){
+Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size = 5){
     _ip = new char[20];
+    _ip_port = new char[24];
     _master_ip = new char[20];
     _buff = new char[MAXLEN];
 
@@ -16,6 +17,10 @@ Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int ma
     _port_to_client = port1;
     _port_to_master = port2;
     _master_port = master_port;
+    
+    strcpy(_ip_port, ip);
+    strcat(_ip_port, ":");
+    sprintf(_ip_port + strlen(_ip_port), "%d", port2);
 }
 
 Cache::~Cache(){
@@ -25,9 +30,9 @@ Cache::~Cache(){
 }
 
 void Cache::run_cache(){
-    std::thread _thread_listen_to_client(listen_to_client);
-    std::thread _thread_listen_to_master(listen_to_master);
-    std::thread _thread_heart(heart);
+    std::thread _thread_listen_to_client(listen_to_client, this);
+    std::thread _thread_listen_to_master(listen_to_master, this);
+    std::thread _thread_heart(heart, this);
     _thread_listen_to_client.join();
     _thread_listen_to_master.join();
     _thread_heart.join();
@@ -40,25 +45,22 @@ void Cache::reset_cache(char* recvline){
 }
 
 // 完成 client 请求的查询或写入
-void Cache::write_cache(char* line){
+int Cache::query_cache(char* line){
     std::string recvline = line;
     switch (recvline[0])
     {
         case 'w': {
-            std::string str_key = recvline.substr(1, 9);
-            int key;
-            std::stringstream ss(str_key);
-            ss >> key;
-            std::string value = recvline.substr(9);
+            std::string key = recvline.substr(1, 9);
+            std::string str_value = recvline.substr(9);
+            int value;
+            std::stringstream ss(str_value);
+            ss >> value;
             _lruCache->Insert(key, value);
         }
             break;
         case 'r': {
-            std::string str_key = recvline.substr(1, 9);
-            int key;
-            std::stringstream ss(str_key);
-            ss >> key;
-            _lruCache->Get(key);
+            std::string key = recvline.substr(1, 9);
+            return _lruCache->Get(key);
         }
             break;
         case 's': {
@@ -68,49 +70,35 @@ void Cache::write_cache(char* line){
             break;
         default:
             printf("Client传入命令出错\n");
+            return -1;
     }
+    return 0;
 }
 
 // 线程1，接收 client 的查询写入请求
-void Cache::listen_to_client(){
-    SocketServer server_to_client(_ip, _port_to_client);
+void listen_to_client(Cache* cache){
+    SocketServer server_to_client(cache->_ip, cache->_port_to_client);
+    char* recvline = nullptr;
+    int result;
     while(true){
-        char* recvline = server_to_client.listen_once();
-        write_cache(recvline);
+        recvline = server_to_client.listen_without_close();
+        result = cache->query_cache(recvline);
+        sprintf(cache->_buff, "%d", result);
+        server_to_client.response_and_close(cache->_buff);
     }
-    
 }
 
 // 线程2，接收 master 的扩容缩容请求
-void Cache::listen_to_master(){
-    SocketServer server_to_master(_ip, _port_to_master);
+void listen_to_master(Cache* cache){
+    SocketServer server_to_master(cache->_ip, cache->_port_to_master);
+    char* recvline = nullptr;
     while(true){
-        char* recvline = server_to_master.listen_once();
-        reset_cache(recvline);
+        recvline = server_to_master.listen_once();
+        cache->reset_cache(recvline);
     }
 }
 
-
-// 线程3，汇报心跳
-void Cache::heart(){
-    //TODO
-    _client_to_master.send_line(_master_ip, _master_port, "heart");
-    
-    
+// 线程3，汇报心跳，给 master 发送自己的 ip 和 port
+void heart(Cache* cache){
+    cache->_client_to_master.send_line(cache->_master_ip, cache->_master_port, cache->_ip_port);
 }
-
-// int main(int argc, char** argv){
-//     if (argc <= 3){
-//         printf("Usage: ./cache $IP $PORT1 $PORT2\n");
-//         return 0;
-//     }
-
-//     char* ip = argv[1];
-//     int port1 = atoi(argv[2]);
-//     int port2 = atoi(argv[3]);
-//     std::thread t1(listen_to_client, ip, port1);
-//     std::thread t2(listen_to_master, ip, port2);
-//     t1.join();
-//     t2.join();
-//     return 0;
-// }

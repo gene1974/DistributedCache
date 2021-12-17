@@ -20,6 +20,15 @@ g++ run_master.cpp master.cpp my_hash.cpp socket_client.cpp socket_server.cpp Ut
 ./master ip port1 port2 client_ip client_port [interval]
 ```
 
+#### cache:
+```shell
+# compile
+g++ run_cache.cpp cache.cpp LRUCache.cpp socket_client.cpp socket_server.cpp Utils.cpp -lpthread -o cache
+
+#run
+./cache ip port1 port2 _master_ip _master_port [size]
+```
+
 ### 系统框架
 
 搭了一下系统框架，按照我的想法大概写了一下需要的线程和函数，具体内容后续完善。
