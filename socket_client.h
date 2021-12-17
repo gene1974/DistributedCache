@@ -1,3 +1,6 @@
+#ifndef __SOCKET_CLIENT_H__
+#define __SOCKET_CLIENT_H__
+
 #include <iostream>
 #include<cstring>
 #include<cerrno>
@@ -22,4 +25,4 @@ private:
     struct sockaddr_in  servaddr;
 };
 
-
+#endif 

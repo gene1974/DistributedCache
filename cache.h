@@ -1,3 +1,5 @@
+#ifndef __CACHE_H__
+#define __CACHE_H__
 
 #include <string>  
 #include "LRUCache.h"
@@ -37,3 +39,5 @@ private:
     int _size;
     LRU_Cache* _lruCache;
 };
+
+#endif 

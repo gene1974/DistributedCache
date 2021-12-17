@@ -1,3 +1,6 @@
+#ifndef __MASTER_H__
+#define __MASTER_H__
+
 #include <ctime>
 #include <vector>
 #include <string>
@@ -40,3 +43,5 @@ private:
     consistent_hash _hash;
     std::map<std::string, time_t> _last_time;
 };
+
+#endif 

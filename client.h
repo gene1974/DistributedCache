@@ -1,3 +1,6 @@
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
+
 #include <cstring>
 #include <map>
 #include <random>
@@ -38,3 +41,5 @@ private:
     bool _is_write = true;
     time_t _interval;
 };
+
+#endif 

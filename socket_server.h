@@ -1,3 +1,6 @@
+#ifndef __SOCKET_SERVER_H__
+#define __SOCKET_CLIENT_H__
+
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
@@ -29,3 +32,5 @@ private:
     struct sockaddr_in  servaddr;
     char  buff[MAXSIZE];
 };
+
+#endif 
