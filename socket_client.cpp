@@ -1,4 +1,5 @@
 #include "socket_client.h"
+#include "Utils.h"
 
 bool SocketClient::_connect_and_send(const char* ip, int port, const char* sendline){
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
@@ -48,13 +49,6 @@ char* SocketClient::send_line(const char* ip, int port, const char* sendline){
 }
 
 char* SocketClient::send_line(std::string ip_port, const char* sendline){
-    auto r = _convert_ip(ip_port);
+    auto r = convert_ip(ip_port);
     return send_line(r.first.c_str(), r.second, sendline);
-}
-
-std::pair<std::string, int> SocketClient::_convert_ip(std::string ip_port){
-    size_t split = ip_port.find(':');
-    int port = atoi(ip_port.c_str() + split + 1);
-    ip_port[split] = '\0';
-    return std::make_pair(ip_port, port);
 }
