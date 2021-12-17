@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <map>
+#include <mutex>
 #include <random>
 #include <string>  
 #include <thread>
@@ -22,10 +23,13 @@ public:
     ~Client();
     void run_client();
     friend void listen_to_master(Client* client);
+
+    
+    std::string get_distribution(std::string key);
     std::string request_master(std::string sendline);
-    bool write_local(std::string key, std::string cache_string);
     void clear_local();
     char* request_cache(const char* ip, int port, std::string data);
+    
 private:
     char* _ip;
     int _port_to_master;
@@ -38,6 +42,7 @@ private:
     char* buff;
 
     std::map<std::string, std::string> _local_hash;
+    std::mutex _hash_lock;
     bool _is_write = true;
     time_t _interval;
 };

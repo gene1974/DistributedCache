@@ -1,7 +1,10 @@
 #ifndef __CACHE_H__
 #define __CACHE_H__
 
-#include <string>  
+#include <mutex>
+#include <thread>
+#include <sstream>
+#include <string>
 #include "LRUCache.h"
 #include "socket_client.h"
 #include "socket_server.h"
@@ -37,6 +40,7 @@ private:
     char* _buff;
 
     int _size;
+    std::mutex _cache_lock;
     LRU_Cache* _lruCache;
 };
 

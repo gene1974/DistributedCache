@@ -2,6 +2,7 @@
 #define __MASTER_H__
 
 #include <ctime>
+#include <mutex>
 #include <vector>
 #include <string>
 #include <thread>
@@ -40,6 +41,9 @@ private:
     SocketClient _client_to_client;
 
     time_t _interval;
+    size_t cache_size;
+    std::mutex _lock_hash;
+    std::mutex _lock_heart;
     consistent_hash _hash;
     std::map<std::string, time_t> _last_time;
 };

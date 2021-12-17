@@ -1,7 +1,3 @@
-#include <iostream>
-#include <thread>
-#include  <sstream>
-#include  <string>
 #include "cache.h"
 
 Cache::Cache(const char* ip, int port1, int port2, const char* master_ip, int master_port, int size = 5){
@@ -41,12 +37,16 @@ void Cache::run_cache(){
 // 处理master发来的扩容缩容请求
 void Cache::reset_cache(char* recvline){
     int new_size = atoi(recvline);
+    _cache_lock.lock();
     _lruCache->reset_size(new_size);
+    _cache_lock.unlock();
 }
 
 // 完成 client 请求的查询或写入
 int Cache::query_cache(char* line){
     std::string recvline = line;
+    int result = 0;
+    _cache_lock.lock();
     switch (recvline[0])
     {
         case 'w': {
@@ -60,7 +60,7 @@ int Cache::query_cache(char* line){
             break;
         case 'r': {
             std::string key = recvline.substr(1, 9);
-            return _lruCache->Get(key);
+            result = _lruCache->Get(key);
         }
             break;
         case 's': {
@@ -70,9 +70,10 @@ int Cache::query_cache(char* line){
             break;
         default:
             printf("Client传入命令出错\n");
-            return -1;
+            result = -1;
     }
-    return 0;
+    _cache_lock.unlock();
+    return result;
 }
 
 // 线程1，接收 client 的查询写入请求

@@ -55,6 +55,20 @@ Client::~Client(){
     delete _master_ip;
 }
 
+std::string Client::get_distribution(std::string key){
+    std::string cache_string;
+    _hash_lock.lock();
+    if (_local_hash.count(key) != 0) { // in local list
+        cache_string = _local_hash[key];
+    }
+    else {
+        cache_string = request_master(key); // request master
+        _local_hash[key] = cache_string; // update local list
+    }
+    _hash_lock.unlock();
+    return cache_string;
+}
+
 std::string Client::request_master(std::string sendline){
     char* recvline = _socket_client.send_line(_master_ip, _master_port, sendline.c_str());
     if (recvline != nullptr){
@@ -63,13 +77,10 @@ std::string Client::request_master(std::string sendline){
     return "";
 }
 
-bool Client::write_local(std::string key, std::string cache_string){
-    _local_hash[key] = cache_string;
-    return true;
-}
-
 void Client::clear_local(){
+    _hash_lock.lock();
     _local_hash.clear();
+    _hash_lock.unlock();
 }
 
 char* Client::request_cache(const char* ip, int port, std::string data){
@@ -85,13 +96,8 @@ void Client::run_client(){
     std::string sendline;
     while(true){
         data = gendata();
-        if (_local_hash.count(data.first) != 0) { // in local list
-            cache_string = _local_hash[data.first];
-        }
-        else {
-            cache_string = request_master(data.first); // request master
-            write_local(data.first, cache_string); // update local list
-        }
+        cache_string = get_distribution(data.first);
+        cache = convert_ip(cache_string);
         
         if (_is_write) {
             sendline = 'w' + data.first + std::to_string(data.second);
@@ -99,7 +105,6 @@ void Client::run_client(){
         else {
             sendline = 'r' + data.first + std::to_string(data.second);
         }
-        cache = convert_ip(cache_string);
         request_cache(cache.first.c_str(), cache.second, sendline);
         sleep(_interval);
     }
